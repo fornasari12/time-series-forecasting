@@ -28,7 +28,21 @@ data["time_idx"] = pd.to_datetime(data.date).astype(int)
 data["time_idx"] -= data["time_idx"].min()
 data["time_idx"] = (data.time_idx / 3600000000000) + 1
 data["time_idx"] = data["time_idx"].astype(int)
-data = data[:3840]
+
+# add datetime variables
+data["month"] = pd.to_datetime(data.date).dt.month\
+    .astype(str)\
+    .astype("category")
+data["day_of_week"] = pd.to_datetime(data.date).dt.dayofweek\
+    .astype(str)\
+    .astype("category")
+data["hour"] = pd.to_datetime(data.date).dt.hour\
+    .astype(str)\
+    .astype("category")
+
+# cut atypical values at the end of the sample
+# data = data[:3840]
+data = data[:3200]
 
 max_prediction_length = 24
 max_encoder_length = 72
@@ -47,6 +61,7 @@ training = TimeSeriesDataSet(
     max_prediction_length=max_prediction_length,
     static_categoricals=["id"],
     time_varying_known_reals=["time_idx"],
+    time_varying_known_categoricals=["hour", "month", "day_of_week"],
     time_varying_unknown_categoricals=[],
     time_varying_unknown_reals=["MERCHANT_1_NUMBER_OF_TRX"],
     target_normalizer=GroupNormalizer(
@@ -76,13 +91,7 @@ baseline_predictions = Baseline().predict(val_dataloader)
 pl.seed_everything(42)
 
 # configure network and trainer
-early_stop_callback = EarlyStopping(
-    monitor="val_loss",
-    min_delta=1e-4,
-    patience=10,
-    verbose=True,
-    mode="min"
-)
+early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
 lr_logger = LearningRateMonitor()  # log the learning rate
 logger = TensorBoardLogger("lightning_logs")  # logging results to a tensorboard
 
@@ -119,5 +128,6 @@ trainer.fit(
     val_dataloaders=val_dataloader,
 )
 
-torch.save(tft.state_dict(), "model/tft.pt")
+torch.save(tft.state_dict(), "model/tft_regressor.pt")
+
 

@@ -3,3 +3,4 @@ pyarrow==3.0.0
 pandas==1.2.5
 numpy==1.21.3
 torch==1.10.0
+matplotlib~=3.4.3
