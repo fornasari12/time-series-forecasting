@@ -1,0 +1,8 @@
+model:
+  batch_size: 128
+  max_epochs: 150
+  gpus: 0
+  learning_rate: 0.001
+  hidden_size: 16
+  dropout: 0.1
+  hidden_continuous_size: 8

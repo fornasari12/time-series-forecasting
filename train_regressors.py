@@ -1,12 +1,5 @@
-import copy
-from pathlib import Path
-import os
 import warnings
-import pickle
 
-warnings.filterwarnings("ignore")  # avoid printing out absolute paths
-
-import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
@@ -19,9 +12,33 @@ from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 from pytorch_forecasting.data.examples import get_stallion_data
 
+from config import load_config
+
+warnings.filterwarnings("ignore")  # avoid printing out absolute paths
+
+spec = load_config("config.yaml")
+BATCH_SIZE = spec["model"]["batch_size"]
+MAX_EPOCHS = spec["model"]["max_epochs"]
+GPUS = spec["model"]["gpus"]
+LEARNING_RATE = spec["model"]["learning_rate"]
+HIDDEN_SIZE = spec["model"]["hidden_size"]
+DROPOUT = spec["model"]["dropout"]
+HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
+
+
 data = pd.read_csv("data/MERCHANT_NUMBER_OF_TRX.csv")
-data = data[["MERCHANT_1_NUMBER_OF_TRX", "date"]]
-data["id"] = "M1"
+data = data[[
+    "MERCHANT_1_NUMBER_OF_TRX",
+    "MERCHANT_2_NUMBER_OF_TRX",
+    "date"
+]]
+data = data.set_index("date").stack().reset_index()
+data = data.rename(
+    columns={
+        'level_1': 'id',
+        0: 'trx'
+    }
+)
 
 # add time index
 data["time_idx"] = pd.to_datetime(data.date).astype(int)
@@ -41,19 +58,15 @@ data["hour"] = pd.to_datetime(data.date).dt.hour\
     .astype("category")
 
 # cut atypical values at the end of the sample
-# data = data[:3840]
-data = data[:3200]
-
+train_data = data[:3200*2]
 max_prediction_length = 24
 max_encoder_length = 72
 training_cutoff = data["time_idx"].max() - max_prediction_length
 
-test_data = data[lambda x: x.time_idx > x.time_idx.max() - max_encoder_length]
-
 training = TimeSeriesDataSet(
-    data[lambda x: x.time_idx <= training_cutoff],
+    train_data[lambda x: x.time_idx <= training_cutoff],
     time_idx="time_idx",
-    target="MERCHANT_1_NUMBER_OF_TRX",
+    target="trx",
     group_ids=["id"],
     min_encoder_length=max_encoder_length // 2,  # keep encoder length long (as it is in the validation set)
     max_encoder_length=max_encoder_length,
@@ -63,7 +76,7 @@ training = TimeSeriesDataSet(
     time_varying_known_reals=["time_idx"],
     time_varying_known_categoricals=["hour", "month", "day_of_week"],
     time_varying_unknown_categoricals=[],
-    time_varying_unknown_reals=["MERCHANT_1_NUMBER_OF_TRX"],
+    time_varying_unknown_reals=["trx"],
     target_normalizer=GroupNormalizer(
         groups=["id"], transformation="softplus"
     ),
@@ -75,12 +88,11 @@ training = TimeSeriesDataSet(
 
 # create validation set (predict=True) which means to predict the last max_prediction_length points in time
 # for each series
-validation = TimeSeriesDataSet.from_dataset(training, data, predict=True, stop_randomization=True)
+validation = TimeSeriesDataSet.from_dataset(training, train_data, predict=True, stop_randomization=True)
 
 # create dataloaders for model
-batch_size = 128  # set this between 32 to 128
-train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0)
-val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0)
+train_dataloader = training.to_dataloader(train=True, batch_size=BATCH_SIZE, num_workers=0)
+val_dataloader = validation.to_dataloader(train=False, batch_size=BATCH_SIZE * 10, num_workers=0)
 
 # calculate baseline mean absolute error, i.e. predict next value as the last available value from the history
 actuals = torch.cat([y for x, (y, weight) in iter(val_dataloader)])
@@ -96,24 +108,23 @@ lr_logger = LearningRateMonitor()  # log the learning rate
 logger = TensorBoardLogger("lightning_logs")  # logging results to a tensorboard
 
 trainer = pl.Trainer(
-    max_epochs=150,
-    gpus=0,
+    max_epochs=MAX_EPOCHS,
+    gpus=GPUS,
     weights_summary="top",
     gradient_clip_val=0.1,
-    # limit_train_batches=30,  # comment in for training, running valiation every 30 batches
-    # fast_dev_run=True,  # comment in to check that networkor dataset has no serious bugs
+    # limit_train_batches=30,  # comment in for training, running validation every 30 batches
+    # fast_dev_run=True,  # comment in to check that network or dataset has no serious bugs
     callbacks=[lr_logger, early_stop_callback],
     logger=logger,
 )
 
-
 tft = TemporalFusionTransformer.from_dataset(
     training,
-    learning_rate=0.001,
-    hidden_size=16,
+    learning_rate=LEARNING_RATE,
+    hidden_size=HIDDEN_SIZE,
     attention_head_size=1,
-    dropout=0.1,
-    hidden_continuous_size=8,
+    dropout=DROPOUT,
+    hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
     output_size=7,  # 7 quantiles by default
     loss=QuantileLoss(),
     log_interval=10,  # uncomment for learning rate finder and otherwise, e.g. to 10 for logging every 10 batches
@@ -129,5 +140,3 @@ trainer.fit(
 )
 
 torch.save(tft.state_dict(), "model/tft_regressor.pt")
-
-
