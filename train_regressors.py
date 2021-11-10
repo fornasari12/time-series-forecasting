@@ -1,6 +1,8 @@
 import warnings
 
 import pandas as pd
+import numpy as np
+
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -12,24 +14,27 @@ from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 
 from config import load_config
 
-warnings.filterwarnings("ignore")  # avoid printing out absolute paths
+warnings.filterwarnings("ignore")
 
 spec = load_config("config.yaml")
-BATCH_SIZE = spec["model"]["batch_size"]
-MAX_EPOCHS = spec["model"]["max_epochs"]
-GPUS = spec["model"]["gpus"]
-LEARNING_RATE = spec["model"]["learning_rate"]
-HIDDEN_SIZE = spec["model"]["hidden_size"]
-DROPOUT = spec["model"]["dropout"]
-HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
-GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
+BATCH_SIZE = spec["model_local"]["batch_size"]
+MAX_EPOCHS = spec["model_local"]["max_epochs"]
+GPUS = spec["model_local"]["gpus"]
+LEARNING_RATE = spec["model_local"]["learning_rate"]
+HIDDEN_SIZE = spec["model_local"]["hidden_size"]
+DROPOUT = spec["model_local"]["dropout"]
+HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
+GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
 
-data = pd.read_csv("data/MERCHANT_NUMBER_OF_TRX.csv")
+data = pd.read_csv("data/poc.csv")
 data = data[[
     "MERCHANT_1_NUMBER_OF_TRX",
     "MERCHANT_2_NUMBER_OF_TRX",
-    "date"
+    "USER_1_NUMBER_OF_TRX",
+    "USER_2_NUMBER_OF_TRX",
+    "TIME"
 ]]
+data = data.rename(columns={'TIME': 'date'})
 data = data.set_index("date").stack().reset_index()
 data = data.rename(
     columns={
@@ -137,4 +142,4 @@ trainer.fit(
     val_dataloaders=val_dataloader,
 )
 
-torch.save(tft.state_dict(), "model/tft_regressor.pt")
+torch.save(tft.state_dict(), "model/tft_regressor_local.pt")

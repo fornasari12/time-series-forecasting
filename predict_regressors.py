@@ -96,7 +96,7 @@ for target in ["MERCHANT_1_NUMBER_OF_TRX", "MERCHANT_2_NUMBER_OF_TRX"]:
 
     df = data[data["id"] == target].reset_index(drop=True)
 
-    for start in range(3200, 3500, 72):
+    for start in range(3212, 3600, 24):
         test_data = df[start:(start + max_encoder_length)]
         y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
 

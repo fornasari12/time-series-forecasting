@@ -1,9 +1,18 @@
 model:
-  batch_size: 128
+  batch_size: 512
   max_epochs: 150
-  gpus: 0
+  gpus: 1
   learning_rate: 0.001
+  hidden_size: 100
+  dropout: 0.2
+  hidden_continuous_size: 40
+  gradient_clip_val: 0.3
+model_local:
+  batch_size: 512
+  max_epochs: 3
+  gpus: 0
+  learning_rate: 0.01
   hidden_size: 16
-  dropout: 0.1
+  dropout: 0.2
   hidden_continuous_size: 8
-  gradient_clip_val: 0.1
+  gradient_clip_val: 0.3
