@@ -1,28 +1,15 @@
 import warnings
+import pickle
 
 import pandas as pd
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
-from pytorch_lightning.loggers import TensorBoardLogger
 import torch
 
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
-from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
-
-from config import load_config
+from pytorch_forecasting.models.temporal_fusion_transformer.tuning import optimize_hyperparameters
 
 warnings.filterwarnings("ignore")  # avoid printing out absolute paths
-
-spec = load_config("config.yaml")
-BATCH_SIZE = spec["model"]["batch_size"]
-MAX_EPOCHS = spec["model"]["max_epochs"]
-GPUS = spec["model"]["gpus"]
-LEARNING_RATE = spec["model"]["learning_rate"]
-HIDDEN_SIZE = spec["model"]["hidden_size"]
-DROPOUT = spec["model"]["dropout"]
-HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
-GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
 data = pd.read_csv("data/MERCHANT_NUMBER_OF_TRX.csv")
 data = data[[
@@ -100,41 +87,27 @@ baseline_predictions = Baseline().predict(val_dataloader)
 # configure network and trainer
 pl.seed_everything(42)
 
-# configure network and trainer
-early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-lr_logger = LearningRateMonitor()  # log the learning rate
-logger = TensorBoardLogger("lightning_logs")  # logging results to a tensorboard
-
-trainer = pl.Trainer(
-    max_epochs=MAX_EPOCHS,
-    gpus=GPUS,
-    weights_summary="top",
-    gradient_clip_val=GRADIENT_CLIP_VAL,
-    # limit_train_batches=30,  # comment in for training, running validation every 30 batches
-    # fast_dev_run=True,  # comment in to check that network or dataset has no serious bugs
-    callbacks=[lr_logger, early_stop_callback],
-    logger=logger,
-)
-
-tft = TemporalFusionTransformer.from_dataset(
-    training,
-    learning_rate=LEARNING_RATE,
-    hidden_size=HIDDEN_SIZE,
-    attention_head_size=1,
-    dropout=DROPOUT,
-    hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
-    output_size=7,  # 7 quantiles by default
-    loss=QuantileLoss(),
-    log_interval=10,  # uncomment for learning rate finder and otherwise, e.g. to 10 for logging every 10 batches
+# create study
+study = optimize_hyperparameters(
+    train_dataloader,
+    val_dataloader,
+    model_path="optuna_test",
+    n_trials=200,
+    max_epochs=50,
+    gradient_clip_val_range=(0.01, 1.0),
+    hidden_size_range=(8, 128),
+    hidden_continuous_size_range=(8, 128),
+    attention_head_size_range=(1, 4),
+    learning_rate_range=(0.001, 0.1),
+    dropout_range=(0.1, 0.3),
+    trainer_kwargs=dict(limit_train_batches=30),
     reduce_on_plateau_patience=4,
-)
-print(f"Number of parameters in network: {tft.size()/1e3:.1f}k")
-
-# fit network
-trainer.fit(
-    tft,
-    train_dataloader=train_dataloader,
-    val_dataloaders=val_dataloader,
+    use_learning_rate_finder=False,  # use Optuna to find ideal learning rate or use in-built learning rate finder
 )
 
-torch.save(tft.state_dict(), "model/tft_regressor.pt")
+# save study results - also we can resume tuning at a later point in time
+with open("test_study.pkl", "wb") as fout:
+    pickle.dump(study, fout)
+
+# show best hyperparameters
+print(study.best_trial.params)

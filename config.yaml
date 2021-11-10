@@ -6,3 +6,4 @@ model:
   hidden_size: 16
   dropout: 0.1
   hidden_continuous_size: 8
+  gradient_clip_val: 0.1
