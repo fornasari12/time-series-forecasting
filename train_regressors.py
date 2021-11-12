@@ -61,7 +61,8 @@ data["hour"] = pd.to_datetime(data.date).dt.hour\
     .astype("category")
 
 # cut atypical values at the end of the sample
-train_data = data[:3200*2]
+cutoff = data["id"].nunique()
+train_data = data[:3200*cutoff]
 max_prediction_length = 24
 max_encoder_length = 72
 training_cutoff = data["time_idx"].max() - max_prediction_length

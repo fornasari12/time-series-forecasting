@@ -28,12 +28,15 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
-data = pd.read_csv("/content/temporal-fusion-transformer/data/MERCHANT_NUMBER_OF_TRX.csv")
+data = pd.read_csv("/content/temporal-fusion-transformer/data/poc.csv")
 data = data[[
     "MERCHANT_1_NUMBER_OF_TRX",
     "MERCHANT_2_NUMBER_OF_TRX",
-    "date"
+    "USER_1_NUMBER_OF_TRX",
+    "USER_2_NUMBER_OF_TRX",
+    "TIME"
 ]]
+data = data.rename(columns={'TIME': 'date'})
 data = data.set_index("date").stack().reset_index()
 data = data.rename(
     columns={
@@ -60,7 +63,8 @@ data["hour"] = pd.to_datetime(data.date).dt.hour\
     .astype("category")
 
 # cut atypical values at the end of the sample
-train_data = data[:3200*2]
+cutoff = data["id"].nunique()
+train_data = data[:3200*cutoff]
 max_prediction_length = 24
 max_encoder_length = 72
 training_cutoff = data["time_idx"].max() - max_prediction_length
