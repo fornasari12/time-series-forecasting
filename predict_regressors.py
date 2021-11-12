@@ -21,8 +21,8 @@ data = pd.read_csv("data/poc.csv")
 data = data[[
     "MERCHANT_1_NUMBER_OF_TRX",
     "MERCHANT_2_NUMBER_OF_TRX",
-    # "USER_1_NUMBER_OF_TRX",
-    # "USER_2_NUMBER_OF_TRX",
+    "USER_1_NUMBER_OF_TRX",
+    "USER_2_NUMBER_OF_TRX",
     "TIME"
 ]]
 data = data.rename(columns={'TIME': 'date'})
@@ -94,13 +94,13 @@ model = TemporalFusionTransformer.from_dataset(
     reduce_on_plateau_patience=4,
 )
 
-model.load_state_dict(torch.load("model/tft_regressor.pt"))
+model.load_state_dict(torch.load("model/tft_regressor-1.pt"))
 
 for target in [
     "MERCHANT_1_NUMBER_OF_TRX",
     "MERCHANT_2_NUMBER_OF_TRX",
-    # "USER_1_NUMBER_OF_TRX",
-    # "USER_2_NUMBER_OF_TRX",
+    "USER_1_NUMBER_OF_TRX",
+    "USER_2_NUMBER_OF_TRX",
 ]:
 
     df = data[data["id"] == target].reset_index(drop=True)
