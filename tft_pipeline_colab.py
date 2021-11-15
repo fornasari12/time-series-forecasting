@@ -29,6 +29,8 @@ HIDDEN_SIZE = spec["model"]["hidden_size"]
 DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
+max_prediction_length = spec["model"]["max_prediction_length"]
+max_encoder_length = spec["model"]["max_encoder_length"]
 
 if __name__ == "__main__":
 
@@ -37,10 +39,6 @@ if __name__ == "__main__":
         folder_list=FOLDER_LIST,
         cutoff=0.70
     ).load_data()
-
-    max_prediction_length = 24
-    max_encoder_length = 48
-    # training_cutoff = data["time_idx"].max() - max_prediction_length
 
     training = TimeSeriesDataSet(
         train_data,
