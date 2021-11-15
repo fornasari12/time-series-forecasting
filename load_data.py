@@ -45,6 +45,19 @@ class LoadData:
         return df
 
     @staticmethod
+    def _resample_df(
+            df: pd.DataFrame,
+            sample: str
+    ):
+
+        df = df.set_index("date")
+        df.index = pd.to_datetime(df.index)
+        df = df.resample(sample).sum()
+        df = df.reset_index(drop=False)
+
+        return df
+
+    @staticmethod
     def _create_id_columns(
             df: pd.DataFrame,
             folder: str,
@@ -110,6 +123,8 @@ class LoadData:
 
             for file in file_list:
                 df = self._load_dataframe(folder=folder, file=file)
+                df = self._resample_df(df=df, sample="H")
+
                 train_split = int(len(df) * self.cutoff)
 
                 self._create_id_columns(

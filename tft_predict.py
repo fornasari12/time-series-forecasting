@@ -16,17 +16,16 @@ from load_data import LoadData
 warnings.filterwarnings("ignore")
 
 spec = load_config("config.yaml")
-
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
-BATCH_SIZE = spec["model_local"]["batch_size"]
-MAX_EPOCHS = spec["model_local"]["max_epochs"]
-GPUS = spec["model_local"]["gpus"]
-LEARNING_RATE = spec["model_local"]["learning_rate"]
-HIDDEN_SIZE = spec["model_local"]["hidden_size"]
-DROPOUT = spec["model_local"]["dropout"]
-HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
-GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
+BATCH_SIZE = spec["model"]["batch_size"]
+MAX_EPOCHS = spec["model"]["max_epochs"]
+GPUS = spec["model"]["gpus"]
+LEARNING_RATE = spec["model"]["learning_rate"]
+HIDDEN_SIZE = spec["model"]["hidden_size"]
+DROPOUT = spec["model"]["dropout"]
+HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
+GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
 train_data, test_data = LoadData(
     data_path=DATA_PATH,
