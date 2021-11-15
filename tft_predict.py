@@ -91,11 +91,11 @@ for folder in FOLDER_LIST:
         ].reset_index(drop=True)
 
         start = 0
-        test_data_ = df[start:(start + max_encoder_length)]
+        test_data_df = df[start:(start + max_encoder_length)]
         y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
 
         y_hat = model.predict(
-            test_data,
+            test_data_df,
             mode="prediction",
             return_x=True
         )[0][0].tolist()

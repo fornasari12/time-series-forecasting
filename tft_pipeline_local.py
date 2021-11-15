@@ -36,7 +36,7 @@ if __name__ == "__main__":
     ).load_data()
 
     max_prediction_length = 24
-    max_encoder_length = 48
+    max_encoder_length = 24*5
     # training_cutoff = data["time_idx"].max() - max_prediction_length
 
     training = TimeSeriesDataSet(
