@@ -15,9 +15,9 @@ from pytorch_forecasting.metrics import QuantileLoss
 warnings.filterwarnings("ignore")
 
 spec = load_config("config.yaml")
-
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
+MODEL_PATH = spec["model_local"]["model_path"]
 BATCH_SIZE = spec["model_local"]["batch_size"]
 MAX_EPOCHS = spec["model_local"]["max_epochs"]
 GPUS = spec["model_local"]["gpus"]
@@ -27,17 +27,19 @@ DROPOUT = spec["model_local"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
 
+max_prediction_length = spec["model_local"]["max_prediction_length"]
+max_encoder_length = spec["model_local"]["max_encoder_length"]
+sample = spec["model_local"]["sample"]
+cutoff = spec["model_local"]["cutoff"]
+
 if __name__ == "__main__":
 
     train_data, _ = LoadData(
         data_path=DATA_PATH,
         folder_list=FOLDER_LIST,
-        cutoff=0.70
+        cutoff=cutoff,
+        sample=sample
     ).load_data()
-
-    max_prediction_length = 24
-    max_encoder_length = 24*5
-    # training_cutoff = data["time_idx"].max() - max_prediction_length
 
     training = TimeSeriesDataSet(
         train_data,
@@ -133,6 +135,6 @@ if __name__ == "__main__":
         val_dataloaders=val_dataloader,
     )
 
-    torch.save(tft.state_dict(), "model/tft_regressor_test.pt")
+    torch.save(tft.state_dict(), MODEL_PATH)
 
     print("a")

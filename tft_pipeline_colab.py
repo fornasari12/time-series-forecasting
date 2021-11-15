@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore")
 spec = load_config("/content/temporal-fusion-transformer/config.yaml")
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
+MODEL_PATH = spec["model"]["model_path"]
 BATCH_SIZE = spec["model"]["batch_size"]
 MAX_EPOCHS = spec["model"]["max_epochs"]
 GPUS = spec["model"]["gpus"]
@@ -29,15 +30,19 @@ HIDDEN_SIZE = spec["model"]["hidden_size"]
 DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
+
 max_prediction_length = spec["model"]["max_prediction_length"]
 max_encoder_length = spec["model"]["max_encoder_length"]
+sample = spec["model"]["sample"]
+cutoff = spec["model"]["cutoff"]
 
 if __name__ == "__main__":
 
     train_data, _ = LoadData(
         data_path="/content/temporal-fusion-transformer/" + DATA_PATH,
         folder_list=FOLDER_LIST,
-        cutoff=0.70
+        cutoff=cutoff,
+        sample=sample
     ).load_data()
 
     training = TimeSeriesDataSet(
@@ -134,4 +139,4 @@ if __name__ == "__main__":
         val_dataloaders=val_dataloader,
     )
 
-    torch.save(tft.state_dict(), "/content/model/tft_regressor_test.pt")
+    torch.save(tft.state_dict(), MODEL_PATH)

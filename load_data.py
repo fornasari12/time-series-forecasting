@@ -13,11 +13,13 @@ class LoadData:
             self,
             data_path: str,
             folder_list: str,
-            cutoff: float
+            cutoff: float,
+            sample: str
     ):
         self.data_path = data_path
         self.folder_list = folder_list
         self.cutoff = cutoff
+        self.sample = sample
         self.train_data = pd.DataFrame()
         self.test_data = pd.DataFrame()
 
@@ -123,7 +125,7 @@ class LoadData:
 
             for file in file_list:
                 df = self._load_dataframe(folder=folder, file=file)
-                df = self._resample_df(df=df, sample="H")
+                df = self._resample_df(df=df, sample=self.sample)
 
                 train_split = int(len(df) * self.cutoff)
 

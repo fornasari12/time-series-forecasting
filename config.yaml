@@ -5,15 +5,18 @@ general:
   ]
 model:
   batch_size: 512
-  max_epochs: 150
+  max_epochs: 100
   gpus: 1
   learning_rate: 0.001
-  hidden_size: 150
+  hidden_size: 100
   dropout: 0.2
   hidden_continuous_size: 40
   gradient_clip_val: 0.3
   max_prediction_length: 24
   max_encoder_length: 72
+  sample: "30min"
+  cutoff: 0.70
+  model_path: "/content/model/tft_regressor_test.pt"
 
 model_local:
   batch_size: 2048
@@ -24,3 +27,8 @@ model_local:
   dropout: 0.2
   hidden_continuous_size: 4
   gradient_clip_val: 0.3
+  max_prediction_length: 24
+  max_encoder_length: 72
+  sample: "30min"
+  cutoff: 0.70
+  model_path: "model/tft_regressor_test.pt"
