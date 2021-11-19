@@ -14,12 +14,16 @@ class LoadData:
             data_path: str,
             folder_list: str,
             cutoff: float,
-            sample: str
+            sample: str,
+            sma: [list, int] = None,
+            lags: int = None
     ):
         self.data_path = data_path
         self.folder_list = folder_list
         self.cutoff = cutoff
         self.sample = sample
+        self.sma = sma
+        self.lags = lags
         self.train_data = pd.DataFrame()
         self.test_data = pd.DataFrame()
 
@@ -72,6 +76,7 @@ class LoadData:
     def _create_date_features(df: pd.DataFrame):
 
         df["date"] = pd.to_datetime(df["date"])
+
         df["month"] = pd.to_datetime(df.date).dt.month \
             .astype(str) \
             .astype("category")
@@ -81,6 +86,35 @@ class LoadData:
         df["hour"] = pd.to_datetime(df.date).dt.hour \
             .astype(str) \
             .astype("category")
+        df["day"] = pd.to_datetime(df.date).dt.day \
+            .astype(str) \
+            .astype("category")
+        df["weekofyear"] = pd.to_datetime(df.date).dt.isocalendar().week \
+            .astype(str) \
+            .astype("category")
+
+    @staticmethod
+    def _create_moving_average(
+            serie: pd.Series,
+            window: int
+    ):
+        serie_sma = serie.rolling(window=window).mean()
+
+        return serie_sma
+
+    @staticmethod
+    def _create_lagged_variables(
+            df: pd.DataFrame,
+            column_name: str,
+            lags: int
+    ):
+
+        df_lags = pd.DataFrame()
+        for lag in range(lags, 0, -1):
+            df_lags[f'(t-{lag})'] = \
+                df[column_name].shift(lag).fillna(method="bfill")
+
+        return pd.concat([df_lags, df], axis=1)
 
     @staticmethod
     def _create_time_idx(df: pd.DataFrame):
@@ -135,6 +169,22 @@ class LoadData:
                     file=file
                 )
                 self._create_date_features(df=df)
+
+                if self.sma:
+
+                    for window in self.sma:
+                        df[f"sma_{window}"] = self._create_moving_average(
+                            serie=df["value"],
+                            window=window
+                        ).fillna(method="bfill")
+
+                if self.lags:
+                    df = self._create_lagged_variables(
+                        df=df,
+                        column_name="value",
+                        lags=self.lags
+                    )
+
                 self._create_time_idx(df=df)
 
                 df_train, df_test = self._train_test_split(

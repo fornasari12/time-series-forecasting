@@ -27,14 +27,17 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
+max_prediction_length = spec["model"]["max_prediction_length"]
+max_encoder_length = spec["model"]["max_encoder_length"]
+sample = spec["model"]["sample"]
+cutoff = spec["model"]["cutoff"]
+
 train_data, test_data = LoadData(
     data_path=DATA_PATH,
     folder_list=FOLDER_LIST,
-    cutoff=0.70
+    cutoff=cutoff,
+    sample=sample
 ).load_data()
-
-max_prediction_length = 24
-max_encoder_length = 48
 
 training = TimeSeriesDataSet(
     train_data,
