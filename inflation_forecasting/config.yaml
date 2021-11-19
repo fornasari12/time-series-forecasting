@@ -1,54 +1,76 @@
 general:
-  data_path: "data"
-  folder_list: [
-      'realTweets'
-  ]
+  data_path: "../data/inflation/"
+  data_path_colab: "/content/temporal-fusion-transformer/data/inflation/"
+  csv_name: "cpi_target.csv"
+  csv_list: [
+        "nominal_wages_uy.csv",
+        "commodities.csv",
+        "cpi_br_arg.csv",
+        "exchange_rate_uy.csv",
+        "exchange_rate_br_arg.csv",
+        "unemployment_rate_uy.csv"
+    ]
+  weights: {
+    "alim_beb_no_alc": 26.0566,
+    "beb_alc_tab_estup":  4.2936,
+    "bienes_servicios_diversos": 6.3306,
+    "comunicaciones": 3.358,
+    "educacion": 3.1421,
+    "muebles_art_hogar": 5.7320,
+    "recreacion_cultura": 6.4918,
+    "restaurantes_hoteles": 7.7021,
+    "ropa_calzado": 5.3748,
+    "salud": 7.7090,
+    "transporte": 10.1316,
+    "vivienda": 13.6778
+  }
+
 model:
   lags: 4
-  sma: [ 12, 6 ]
+  sma: [12, 6]
   time_varying_known_categoricals: [
-      "hour",
-      "month",
-      "day_of_week",
-      "day",
-      "weekofyear"
-  ]
-  time_varying_known_reals: [ "time_idx" ]
+#        "hour",
+#        "month",
+#        "day_of_week",
+#        "day",
+#        "weekofyear"
+    ]
+  time_varying_known_reals: ["time_idx"]
   batch_size: 512
-  max_epochs: 100
-  gpus: 1
+  max_epochs: 200
+  gpus: 0
   learning_rate: 0.0001
   hidden_size: 100
   dropout: 0.2
-  hidden_continuous_size: 40
+  hidden_continuous_size: 50
   gradient_clip_val: 0.3
-  max_prediction_length: 24
-  max_encoder_length: 48
-  sample: "60min"
-  cutoff: 0.70
-  model_path: "/content/model/tft_regressor_test.pt"
+  max_prediction_length: 12
+  max_encoder_length: 36
+#  sample: "60min"
+  cutoff: 0.80
+  model_path: "/content/model/model_cpi_colab.pt"
 
 model_local:
   lags: 4
   sma: [12, 6]
   time_varying_known_categoricals: [
-        "hour",
-        "month",
-        "day_of_week",
-        "day",
-        "weekofyear"
+#        "hour",
+#        "month",
+#        "day_of_week",
+#        "day",
+#        "weekofyear"
     ]
   time_varying_known_reals: ["time_idx"]
-  batch_size: 1024
-  max_epochs: 4
+  batch_size: 512
+  max_epochs: 5
   gpus: 0
-  learning_rate: 0.0001
+  learning_rate: 0.01
   hidden_size: 8
   dropout: 0.2
   hidden_continuous_size: 4
   gradient_clip_val: 0.3
-  max_prediction_length: 24
-  max_encoder_length: 48
-  sample: "60min"
-  cutoff: 0.70
-  model_path: "model/tft_regressor_test.pt"
+  max_prediction_length: 12
+  max_encoder_length: 36
+#  sample: "60min"
+  cutoff: 0.80
+  model_path: "../model/model_cpi.pt"
