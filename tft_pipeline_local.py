@@ -27,6 +27,18 @@ DROPOUT = spec["model_local"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
 
+lags = spec["model_local"]["lags"]
+sma = spec["model_local"]["sma"]
+lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+sma_columns = [f"sma_{sma}" for sma in sma]
+time_varying_known_reals = (
+        spec["model_local"]["time_varying_known_reals"] +
+        lags_columns +
+        sma_columns
+)
+
+time_varying_known_categoricals = spec["model_local"]["time_varying_known_categoricals"]
+
 max_prediction_length = spec["model_local"]["max_prediction_length"]
 max_encoder_length = spec["model_local"]["max_encoder_length"]
 sample = spec["model_local"]["sample"]
@@ -39,25 +51,9 @@ if __name__ == "__main__":
         folder_list=FOLDER_LIST,
         cutoff=cutoff,
         sample=sample,
-        sma=[12, 6],
-        lags=2
+        sma=sma,
+        lags=lags
     ).load_data()
-
-    time_varying_known_categoricals = [
-        "hour",
-        "month",
-        "day_of_week",
-        "day",
-        "weekofyear"
-    ]
-
-    time_varying_known_reals = [
-        # "time_idx",
-        "sma_12",
-        "sma_6",
-        "(t-2)",
-        "(t-1)"
-    ]
 
     training = TimeSeriesDataSet(
         train_data,

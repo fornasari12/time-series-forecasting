@@ -18,32 +18,32 @@ warnings.filterwarnings("ignore")
 spec = load_config("config.yaml")
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
-MODEL_PATH = spec["model"]["model_path"]
-BATCH_SIZE = spec["model"]["batch_size"]
-MAX_EPOCHS = spec["model"]["max_epochs"]
-GPUS = spec["model"]["gpus"]
-LEARNING_RATE = spec["model"]["learning_rate"]
-HIDDEN_SIZE = spec["model"]["hidden_size"]
-DROPOUT = spec["model"]["dropout"]
-HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
-GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
+MODEL_PATH = spec["model_local"]["model_path"]
+BATCH_SIZE = spec["model_local"]["batch_size"]
+MAX_EPOCHS = spec["model_local"]["max_epochs"]
+GPUS = spec["model_local"]["gpus"]
+LEARNING_RATE = spec["model_local"]["learning_rate"]
+HIDDEN_SIZE = spec["model_local"]["hidden_size"]
+DROPOUT = spec["model_local"]["dropout"]
+HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
+GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
 
-lags = spec["model"]["lags"]
-sma = spec["model"]["sma"]
+lags = spec["model_local"]["lags"]
+sma = spec["model_local"]["sma"]
 lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
 sma_columns = [f"sma_{sma}" for sma in sma]
 time_varying_known_reals = (
-        spec["model"]["time_varying_known_reals"] +
+        spec["model_local"]["time_varying_known_reals"] +
         lags_columns +
         sma_columns
 )
 
-time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
+time_varying_known_categoricals = spec["model_local"]["time_varying_known_categoricals"]
 
-max_prediction_length = spec["model"]["max_prediction_length"]
-max_encoder_length = spec["model"]["max_encoder_length"]
-sample = spec["model"]["sample"]
-cutoff = spec["model"]["cutoff"]
+max_prediction_length = spec["model_local"]["max_prediction_length"]
+max_encoder_length = spec["model_local"]["max_encoder_length"]
+sample = spec["model_local"]["sample"]
+cutoff = spec["model_local"]["cutoff"]
 
 train_data, test_data = LoadData(
     data_path=DATA_PATH,
