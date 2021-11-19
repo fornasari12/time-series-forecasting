@@ -36,8 +36,26 @@ train_data, test_data = LoadData(
     data_path=DATA_PATH,
     folder_list=FOLDER_LIST,
     cutoff=cutoff,
-    sample=sample
+    sample=sample,
+    sma=[12, 6],
+    lags=2
 ).load_data()
+
+time_varying_known_categoricals = [
+    "hour",
+    "month",
+    "day_of_week",
+    "day",
+    "weekofyear"
+]
+
+time_varying_known_reals = [
+    "time_idx",
+    # "sma_12",
+    # "sma_6",
+    # "(t-2)",
+    # "(t-1)"
+]
 
 training = TimeSeriesDataSet(
     train_data,
@@ -49,8 +67,8 @@ training = TimeSeriesDataSet(
     min_prediction_length=1,
     max_prediction_length=max_prediction_length,
     static_categoricals=["id"],
-    time_varying_known_reals=["time_idx"],
-    time_varying_known_categoricals=["hour", "month", "day_of_week"],
+    time_varying_known_reals=time_varying_known_reals,
+    time_varying_known_categoricals=time_varying_known_categoricals,
     time_varying_unknown_categoricals=[],
     time_varying_unknown_reals=["value"],
     target_normalizer=GroupNormalizer(
@@ -97,11 +115,15 @@ for folder in FOLDER_LIST:
         test_data_df = df[start:(start + max_encoder_length)]
         y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
 
-        y_hat = model.predict(
-            test_data_df,
-            mode="prediction",
-            return_x=True
-        )[0][0].tolist()
+        try:
+            y_hat = model.predict(
+                test_data_df,
+                mode="prediction",
+                return_x=True
+            )[0][0].tolist()
+        except Exception as e:
+            print(e)
+            continue
 
         fig, ax = plt.subplots()
 

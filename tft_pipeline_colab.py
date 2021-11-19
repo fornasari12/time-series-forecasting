@@ -39,7 +39,7 @@ cutoff = spec["model"]["cutoff"]
 if __name__ == "__main__":
 
     train_data, _ = LoadData(
-        data_path=DATA_PATH,
+        data_path="/content/temporal-fusion-transformer/" + DATA_PATH,
         folder_list=FOLDER_LIST,
         cutoff=cutoff,
         sample=sample,
@@ -56,11 +56,11 @@ if __name__ == "__main__":
     ]
 
     time_varying_known_reals = [
-        # "time_idx",
-        "sma_12",
-        "sma_6",
-        "(t-2)",
-        "(t-1)"
+        "time_idx",
+        # "sma_12",
+        # "sma_6",
+        # "(t-2)",
+        # "(t-1)"
     ]
 
     training = TimeSeriesDataSet(
