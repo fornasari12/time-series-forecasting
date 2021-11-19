@@ -42,26 +42,8 @@ if __name__ == "__main__":
         data_path="/content/temporal-fusion-transformer/" + DATA_PATH,
         folder_list=FOLDER_LIST,
         cutoff=cutoff,
-        sample=sample,
-        sma=[12, 6],
-        lags=2
+        sample=sample
     ).load_data()
-
-    time_varying_known_categoricals = [
-        "hour",
-        "month",
-        "day_of_week",
-        "day",
-        "weekofyear"
-    ]
-
-    time_varying_known_reals = [
-        "time_idx",
-        # "sma_12",
-        # "sma_6",
-        # "(t-2)",
-        # "(t-1)"
-    ]
 
     training = TimeSeriesDataSet(
         train_data,
@@ -73,8 +55,8 @@ if __name__ == "__main__":
         min_prediction_length=1,
         max_prediction_length=max_prediction_length,
         static_categoricals=["id"],
-        time_varying_known_reals=time_varying_known_reals,
-        time_varying_known_categoricals=time_varying_known_categoricals,
+        time_varying_known_reals=["time_idx"],
+        time_varying_known_categoricals=["hour", "month", "day_of_week"],
         time_varying_unknown_categoricals=[],
         time_varying_unknown_reals=["value"],
         target_normalizer=GroupNormalizer(
