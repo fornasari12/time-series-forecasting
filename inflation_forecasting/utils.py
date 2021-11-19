@@ -29,11 +29,11 @@ def load_econuy_data(
 
     if csv_name == "nominal_wages_uy.csv":
         df = df.rename(
-            columns={"�ndice medio de salarios privados": "ims_pr"}
+            columns={"indice medio de salarios privados": "ims_pr"}
         )
     if csv_name == "exchange_rate_uy.csv":
         df = df.rename(
-            columns={"Tipo de cambio venta, fin de per�odo": "er_eop",
+            columns={"Tipo de cambio venta, fin de periodo": "er_eop",
                      "Tipo de cambio venta, promedio": "er_aop"
                      }
         )
