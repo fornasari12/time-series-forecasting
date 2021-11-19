@@ -48,7 +48,7 @@ model:
   max_encoder_length: 36
 #  sample: "60min"
   cutoff: 0.80
-  model_path: "/content/model/model_cpi_colab.pt"
+  model_path: "/content/drive/MyDrive/Colab_Notebooks/model/model_cpi_colab.pt"
 
 model_local:
   lags: 4

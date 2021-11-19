@@ -1,12 +1,12 @@
 Indicador,Argentina - oficial,Argentina - informal,Brasil
-Área,Regional,Regional,Regional
+area,Regional,Regional,Regional
 Frecuencia,-,-,-
 Moneda,ARS,ARS,BRL
 Inf. adj.,No,No,No
 Unidad,ARS/USD,ARS/USD,BRL/USD
 Seas. Adj.,NSA,NSA,NSA
 Tipo,-,-,-
-Acum. períodos,1,1,1
+Acum. periodos,1,1,1
 2002-04-09,2.85,2.8,2.2842
 2002-04-10,2.84,2.8,2.2728
 2002-04-11,2.9,2.84,2.2709

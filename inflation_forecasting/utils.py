@@ -7,7 +7,6 @@ def load_econuy_data(
 ):
     df = pd.read_csv(
         data_path + csv_name,
-        infer_datetime_format=True
     ).iloc[8:, :].rename(columns={"Indicador": "date"})
 
     df = df.set_index(
