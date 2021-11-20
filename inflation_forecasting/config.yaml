@@ -1,6 +1,7 @@
 general:
   data_path: "../data/inflation/"
   data_path_colab: "/content/temporal-fusion-transformer/data/inflation/"
+  model_path_local: "../model/model_cpi_colab.pt"
   csv_name: "cpi_target.csv"
   csv_list: [
         "nominal_wages_uy.csv",

@@ -43,6 +43,20 @@ def load_inflation_data(
 
     result = df.merge(df_exog, on="date", how='outer').sort_values("date")
 
+    relevant_vars = [
+        'date', 'id', 'value', 'ims_pr', 'meat', 'soy', 'milk',
+        'rice', 'wool', 'wheat', 'Argentina', 'Brasil',
+        'er_eop', 'er_aop', 'er_ar_official', 'er_ar_blue', 'er_br',
+        # 'unemployment_rate'
+    ]
+
+    result = result[relevant_vars]
+    result = result[
+        (result["date"] <= pd.to_datetime("2021-06-30 00:00:00")) &
+        (result["date"] >= pd.to_datetime("2002-01-31 00:00:00"))
+
+    ].fillna(method="bfill")
+
     train_data = pd.DataFrame()
     test_data = pd.DataFrame()
 
@@ -52,9 +66,19 @@ def load_inflation_data(
 
         df_group["time_idx"] = list(range(len(df_group)))
 
+        for column in [
+            'value', 'ims_pr', 'meat', 'soy', 'milk',
+            'rice', 'wool', 'wheat', 'Argentina', 'Brasil',
+            'er_eop', 'er_aop', 'er_ar_official', 'er_ar_blue', 'er_br',
+            # 'unemployment_rate'
+        ]:
+
+            df_group[column] = (
+                    df_group[column].pct_change()*100
+            ).fillna(method="bfill")
+
         df_train = df_group.iloc[:train_split, :]
         df_test = df_group.iloc[train_split:, :]
-
 
         train_data = pd.concat(
             objs=[train_data, df_train],
