@@ -27,25 +27,31 @@ general:
   }
 
 model:
-  lags: 4
-  sma: [12, 6]
-  time_varying_known_categoricals: [
-#        "hour",
-        "month",
-#        "day_of_week",
-#        "day",
-#        "weekofyear"
-    ]
-  time_varying_known_reals: [
-#      "time_idx",
+  time_varying_known_categoricals: ["month"]
+  time_varying_known_reals:   [
       'ims_pr',
-#      'meat',
-#      'soy',
       'Argentina',
       'Brasil',
       'er_eop',
 #      'er_aop',
-#      'er_br'
+      'value_lag1',
+      'value_lag6',
+      'value_lag12',
+      'ims_pr_lag1',
+      'ims_pr_lag6',
+      'ims_pr_lag12',
+      'Argentina_lag1',
+      'Argentina_lag6',
+      'Argentina_lag12',
+      'Brasil_lag1',
+      'Brasil_lag6',
+      'Brasil_lag12',
+      'er_eop_lag1',
+      'er_eop_lag6',
+      'er_eop_lag12',
+#      'er_aop_lag1',
+#      'er_aop_lag6',
+#      'er_aop_lag12'
   ]
   batch_size: 512
   max_epochs: 10000
@@ -57,31 +63,35 @@ model:
   gradient_clip_val: 0.3
   max_prediction_length: 12
   max_encoder_length: 48
-#  sample: "60min"
   cutoff: 0.70
   model_path: "/content/drive/MyDrive/Colab_Notebooks/model/model_cpi_colab.pt"
 
 model_local:
-  lags: 4
-  sma: [12, 6]
-  time_varying_known_categoricals: [
-#        "hour",
-#        "month",
-#        "day_of_week",
-#        "day",
-#        "weekofyear"
-    ]
-  time_varying_known_reals: [
-      "time_idx",
-      "month",
+  time_varying_known_categoricals: ["month"]
+  time_varying_known_reals:   [
       'ims_pr',
-      'meat',
-      'soy',
       'Argentina',
       'Brasil',
       'er_eop',
-      'er_aop',
-      'er_br'
+#      'er_aop',
+      'value_lag1',
+      'value_lag6',
+      'value_lag12',
+      'ims_pr_lag1',
+      'ims_pr_lag6',
+      'ims_pr_lag12',
+      'Argentina_lag1',
+      'Argentina_lag6',
+      'Argentina_lag12',
+      'Brasil_lag1',
+      'Brasil_lag6',
+      'Brasil_lag12',
+      'er_eop_lag1',
+      'er_eop_lag6',
+      'er_eop_lag12',
+#      'er_aop_lag1',
+#      'er_aop_lag6',
+#      'er_aop_lag12'
   ]
   batch_size: 512
   max_epochs: 2
@@ -93,6 +103,5 @@ model_local:
   gradient_clip_val: 0.3
   max_prediction_length: 12
   max_encoder_length: 48
-#  sample: "60min"
   cutoff: 0.70
   model_path: "../model/model_cpi.pt"

@@ -44,9 +44,12 @@ def load_inflation_data(
     result = df.merge(df_exog, on="date", how='outer').sort_values("date")
 
     relevant_vars = [
-        'date', 'id', 'value', 'ims_pr', 'meat', 'soy', 'milk',
-        'rice', 'wool', 'wheat', 'Argentina', 'Brasil',
-        'er_eop', 'er_aop', 'er_ar_official', 'er_ar_blue', 'er_br',
+        'date', 'id', 'value', 'ims_pr',
+        # 'meat', 'soy', 'milk',
+        # 'rice', 'wool', 'wheat',
+        'Argentina', 'Brasil',
+        'er_eop', 'er_aop',
+        # 'er_ar_official', 'er_ar_blue', 'er_br',
         # 'unemployment_rate'
     ]
 
@@ -68,15 +71,23 @@ def load_inflation_data(
         df_group["time_idx"] = list(range(len(df_group)))
 
         for column in [
-            'value', 'ims_pr', 'meat', 'soy', 'milk',
-            'rice', 'wool', 'wheat', 'Argentina', 'Brasil',
-            'er_eop', 'er_aop', 'er_ar_official', 'er_ar_blue', 'er_br',
+            'value', 'ims_pr',
+            # 'meat', 'soy', 'milk',
+            # 'rice', 'wool', 'wheat',
+            'Argentina', 'Brasil',
+            'er_eop', 'er_aop',
+            # 'er_ar_official', 'er_ar_blue', 'er_br',
             # 'unemployment_rate'
         ]:
 
             df_group[column] = (
                     df_group[column].pct_change()*100
             ).fillna(method="bfill")
+
+            for lag in [1, 6, 12]:
+                df_group[f"{column}_lag{lag}"] = (
+                    df_group[column].shift(lag).fillna(method="bfill")
+                )
 
         df_train = df_group.iloc[:train_split, :]
         df_test = df_group.iloc[train_split:, :]

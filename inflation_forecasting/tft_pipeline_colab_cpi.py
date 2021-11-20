@@ -33,10 +33,6 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
-lags = spec["model"]["lags"]
-sma = spec["model"]["sma"]
-lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
-sma_columns = [f"sma_{sma}" for sma in sma]
 time_varying_known_reals = (
         spec["model"]["time_varying_known_reals"]
 )
