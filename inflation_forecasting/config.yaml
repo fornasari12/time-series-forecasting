@@ -37,7 +37,7 @@ model:
 #        "weekofyear"
     ]
   time_varying_known_reals: ["time_idx"]
-  batch_size: 512
+  batch_size: 128
   max_epochs: 200
   gpus: 1
   learning_rate: 0.0001
@@ -46,9 +46,9 @@ model:
   hidden_continuous_size: 50
   gradient_clip_val: 0.3
   max_prediction_length: 12
-  max_encoder_length: 36
+  max_encoder_length: 48
 #  sample: "60min"
-  cutoff: 0.80
+  cutoff: 0.70
   model_path: "/content/drive/MyDrive/Colab_Notebooks/model/model_cpi_colab.pt"
 
 model_local:
@@ -71,7 +71,7 @@ model_local:
   hidden_continuous_size: 4
   gradient_clip_val: 0.3
   max_prediction_length: 12
-  max_encoder_length: 36
+  max_encoder_length: 48
 #  sample: "60min"
-  cutoff: 0.80
+  cutoff: 0.70
   model_path: "../model/model_cpi.pt"
