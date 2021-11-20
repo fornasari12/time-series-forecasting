@@ -53,13 +53,13 @@ model:
 #      'er_aop_lag6',
 #      'er_aop_lag12'
   ]
-  batch_size: 512
-  max_epochs: 10000
+  batch_size: 256
+  max_epochs: 1000
   gpus: 1
   learning_rate: 0.001
-  hidden_size: 90
+  hidden_size: 150
   dropout: 0.2
-  hidden_continuous_size: 45
+  hidden_continuous_size: 80
   gradient_clip_val: 0.3
   max_prediction_length: 12
   max_encoder_length: 48
