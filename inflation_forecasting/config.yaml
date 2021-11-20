@@ -31,22 +31,21 @@ model:
   sma: [12, 6]
   time_varying_known_categoricals: [
 #        "hour",
-#        "month",
+        "month",
 #        "day_of_week",
 #        "day",
 #        "weekofyear"
     ]
   time_varying_known_reals: [
       "time_idx",
-      "month",
       'ims_pr',
-      'meat',
-      'soy',
+#      'meat',
+#      'soy',
       'Argentina',
       'Brasil',
       'er_eop',
       'er_aop',
-      'er_br'
+#      'er_br'
   ]
   batch_size: 512
   max_epochs: 200

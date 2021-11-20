@@ -57,7 +57,7 @@ def load_inflation_data(
 
     ].fillna(method="bfill")
 
-    result["month"] = result["date"].dt.month
+    result["month"] = result["date"].dt.month.astype(str).astype("category")
 
     train_data = pd.DataFrame()
     test_data = pd.DataFrame()
