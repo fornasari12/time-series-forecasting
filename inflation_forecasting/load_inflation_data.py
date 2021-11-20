@@ -52,9 +52,8 @@ def load_inflation_data(
 
     result = result[relevant_vars]
     result = result[
-        (result["date"] <= pd.to_datetime("2021-06-30 00:00:00")) &
-        (result["date"] >= pd.to_datetime("2002-01-31 00:00:00"))
-
+        (result["date"] <= pd.to_datetime("2021-06-30 00:00:00"))
+        # & (result["date"] >= pd.to_datetime("2002-01-31 00:00:00"))
     ].fillna(method="bfill")
 
     result["month"] = result["date"].dt.month.astype(str).astype("category")

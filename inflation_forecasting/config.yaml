@@ -37,7 +37,7 @@ model:
 #        "weekofyear"
     ]
   time_varying_known_reals: [
-      "time_idx",
+#      "time_idx",
       'ims_pr',
 #      'meat',
 #      'soy',
@@ -48,7 +48,7 @@ model:
 #      'er_br'
   ]
   batch_size: 512
-  max_epochs: 200
+  max_epochs: 300
   gpus: 1
   learning_rate: 0.0001
   hidden_size: 100
