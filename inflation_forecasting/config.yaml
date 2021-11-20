@@ -44,16 +44,16 @@ model:
       'Argentina',
       'Brasil',
       'er_eop',
-      'er_aop',
+#      'er_aop',
 #      'er_br'
   ]
   batch_size: 512
-  max_epochs: 300
+  max_epochs: 10000
   gpus: 1
-  learning_rate: 0.0001
-  hidden_size: 100
+  learning_rate: 0.001
+  hidden_size: 90
   dropout: 0.2
-  hidden_continuous_size: 50
+  hidden_continuous_size: 45
   gradient_clip_val: 0.3
   max_prediction_length: 12
   max_encoder_length: 48
