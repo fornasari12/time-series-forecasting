@@ -87,7 +87,7 @@ if __name__ == "__main__":
         target_normalizer=GroupNormalizer(
             groups=["id"], transformation="softplus"
         ),
-        lags={"value": [1, 2, 24, 48]},
+        lags={"sma": [1, 2, 24, 48]},
         add_relative_time_idx=True,
         add_target_scales=True,
         add_encoder_length=True,
@@ -112,12 +112,6 @@ if __name__ == "__main__":
         batch_size=BATCH_SIZE * 10,
         num_workers=0
     )
-
-    # calculate baseline mean absolute error, i.e. predict next value as the
-    # last available value from the history
-    actuals = torch.cat([y for x, (y, weight) in iter(val_dataloader)])
-    baseline_predictions = Baseline().predict(val_dataloader)
-    (actuals - baseline_predictions).abs().mean().item()
 
     # configure network and trainer
     pl.seed_everything(42)
