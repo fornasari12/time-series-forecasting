@@ -23,33 +23,32 @@ HIDDEN_SIZE = spec["model"]["hidden_size"]
 DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
-lags = spec["model_local"]["lags"]
-sma = spec["model_local"]["sma"]
+lags = spec["model"]["lags"]
+sma = spec["model"]["sma"]
 sma_columns = [f"sma_{sma}" for sma in sma]
 
 if lags != "None":
     lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
 
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec["model"]["time_varying_known_reals"] +
             lags_columns +
             sma_columns
     )
 if lags == "None":
     lags = None
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec["model"]["time_varying_known_reals"] +
             sma_columns
     )
 else:
-    time_varying_known_reals = (spec["model_local"]["time_varying_known_reals"])
+    time_varying_known_reals = (spec["model"]["time_varying_known_reals"])
 
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 max_prediction_length = spec["model"]["max_prediction_length"]
 max_encoder_length = spec["model"]["max_encoder_length"]
 sample = spec["model"]["sample"]
 cutoff = spec["model"]["cutoff"]
-
 
 # _________________________________________________________________________________________________________________
 # Load Data for all the models:
@@ -64,18 +63,14 @@ train_data, test_data = LoadData(
     time_idx=True,
 ).load_data()
 
+#FIXME: change in LoadData and retrain
+train_data["value"] = train_data["value"].astype(float)
+test_data["value"] = test_data["value"].astype(float)
+
 # _________________________________________________________________________________________________________________
 # Load N-BEATS Model:
-training_n_beats = TimeSeriesDataSet(
-    train_data,
-    time_idx="time_idx",
-    target="value",
-    categorical_encoders={"id": NaNLabelEncoder().fit(train_data.id)},
-    group_ids=["id"],
-    time_varying_unknown_reals=["value"],
-    max_encoder_length=max_encoder_length,
-    max_prediction_length=max_prediction_length,
-)
+with open(f"model/n_beats/training.pickle", "rb") as f:
+    training_n_beats = pickle.load(f)
 
 model_n_beats = NBeats.from_dataset(
     training_n_beats,
@@ -95,7 +90,7 @@ training = TimeSeriesDataSet(
     train_data,
     time_idx="time_idx",
     target="value",
-    group_ids=["dataset", "id"],
+    group_ids=["id"],
     min_encoder_length=max_encoder_length // 2,
     max_encoder_length=max_encoder_length,
     min_prediction_length=1,
@@ -106,12 +101,13 @@ training = TimeSeriesDataSet(
     time_varying_unknown_categoricals=[],
     time_varying_unknown_reals=["value"],
     target_normalizer=GroupNormalizer(
-        groups=["dataset", "id"], transformation="softplus"
+        groups=["id"], transformation="softplus"
     ),
+    lags={"sma_12": [1, 24, 48]},
     add_relative_time_idx=True,
     add_target_scales=True,
     add_encoder_length=True,
-    allow_missing_timesteps=True,
+
 )
 
 model = TemporalFusionTransformer.from_dataset(
@@ -125,7 +121,7 @@ model = TemporalFusionTransformer.from_dataset(
     loss=QuantileLoss(),
     log_interval=10,
     reduce_on_plateau_patience=4,
-)
+    )
 
 model.load_state_dict(torch.load("model/temporal_fusion_transformer/tft.pt"))
 

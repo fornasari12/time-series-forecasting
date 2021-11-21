@@ -132,8 +132,6 @@ class LoadData:
         df_train = df.iloc[:train_split, :]
         df_test = df.iloc[train_split:, :]
 
-        print(len(df_train), len(df_test))
-
         return df_train, df_test
 
     def _concatenate_df(

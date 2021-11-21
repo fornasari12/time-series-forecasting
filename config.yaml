@@ -23,7 +23,7 @@ model:
   hidden_continuous_size: 40
   gradient_clip_val: 0.3
   max_prediction_length: 24
-  max_encoder_length: 96
+  max_encoder_length: 48
   sample: "60min"
   cutoff: 0.70
   model_path: "/content/model/tft.pt"

@@ -12,46 +12,56 @@ from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesD
 from pytorch_forecasting.data import GroupNormalizer
 from pytorch_forecasting.metrics import QuantileLoss
 
+LOCAL = True
+
+if LOCAL:
+    model_key = "model_local"
+else:
+    model_key = "model"
+    import tensorflow as tf
+    import tensorboard as tb
+    tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
+
 warnings.filterwarnings("ignore")
 
 spec = load_config("config.yaml")
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
-MODEL_PATH = spec["model_local"]["model_path"]
-BATCH_SIZE = spec["model_local"]["batch_size"]
-MAX_EPOCHS = spec["model_local"]["max_epochs"]
-GPUS = spec["model_local"]["gpus"]
-LEARNING_RATE = spec["model_local"]["learning_rate"]
-HIDDEN_SIZE = spec["model_local"]["hidden_size"]
-DROPOUT = spec["model_local"]["dropout"]
-HIDDEN_CONTINUOUS_SIZE = spec["model_local"]["hidden_continuous_size"]
-GRADIENT_CLIP_VAL = spec["model_local"]["gradient_clip_val"]
+MODEL_PATH = spec[model_key]["model_path"]
+BATCH_SIZE = spec[model_key]["batch_size"]
+MAX_EPOCHS = spec[model_key]["max_epochs"]
+GPUS = spec[model_key]["gpus"]
+LEARNING_RATE = spec[model_key]["learning_rate"]
+HIDDEN_SIZE = spec[model_key]["hidden_size"]
+DROPOUT = spec[model_key]["dropout"]
+HIDDEN_CONTINUOUS_SIZE = spec[model_key]["hidden_continuous_size"]
+GRADIENT_CLIP_VAL = spec[model_key]["gradient_clip_val"]
 
-lags = spec["model_local"]["lags"]
-sma = spec["model_local"]["sma"]
+lags = spec[model_key]["lags"]
+sma = spec[model_key]["sma"]
 sma_columns = [f"sma_{sma}" for sma in sma]
 
 if lags != "None":
     lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
 
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec[model_key]["time_varying_known_reals"] +
             lags_columns +
             sma_columns
     )
 if lags == "None":
     lags = None
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec[model_key]["time_varying_known_reals"] +
             sma_columns
     )
 
-time_varying_known_categoricals = spec["model_local"]["time_varying_known_categoricals"]
+time_varying_known_categoricals = spec[model_key]["time_varying_known_categoricals"]
 
-max_prediction_length = spec["model_local"]["max_prediction_length"]
-max_encoder_length = spec["model_local"]["max_encoder_length"]
-sample = spec["model_local"]["sample"]
-cutoff = spec["model_local"]["cutoff"]
+max_prediction_length = spec[model_key]["max_prediction_length"]
+max_encoder_length = spec[model_key]["max_encoder_length"]
+sample = spec[model_key]["sample"]
+cutoff = spec[model_key]["cutoff"]
 
 if __name__ == "__main__":
 
@@ -159,5 +169,3 @@ if __name__ == "__main__":
     )
 
     torch.save(tft.state_dict(), MODEL_PATH)
-
-    print("a")

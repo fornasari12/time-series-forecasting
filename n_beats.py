@@ -46,60 +46,39 @@ if __name__ == "__main__":
         sample=sample,
         date_features=False,
         sma=None,
-        lags=None
+        lags=None,
+        time_idx=True
     ).load_data()
 
     train_data["value"] = train_data["value"].astype(float)
-
-    print("A")
 
     training = TimeSeriesDataSet(
         train_data,
         time_idx="time_idx",
         target="value",
-        categorical_encoders={"id": NaNLabelEncoder().fit(train_data.id)},
+        # categorical_encoders={"id": NaNLabelEncoder().fit(train_data.id)},
         group_ids=["id"],
         time_varying_unknown_reals=["value"],
         max_encoder_length=max_encoder_length,
         max_prediction_length=max_prediction_length,
+        # allow_missing_timesteps=True,
     )
-
+    training_cutoff = train_data["time_idx"].max() - max_prediction_length
     # create validation set (predict=True) which means to predict the
     # last max_prediction_length points in time for each series
-    validation = TimeSeriesDataSet.from_dataset(
-        training,
-        train_data,
-        predict=True,
-        stop_randomization=True
-    )
+    validation = TimeSeriesDataSet.from_dataset(training, train_data, min_prediction_idx=training_cutoff + 1)
 
     # create dataloaders for model
-    train_dataloader = training.to_dataloader(
-        train=True,
-        batch_size=BATCH_SIZE,
-        num_workers=0)
-    val_dataloader = validation.to_dataloader(
-        train=False,
-        batch_size=BATCH_SIZE * 10,
-        num_workers=0
-    )
+    batch_size = 512
+    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0)
+    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size, num_workers=0)
 
     # configure network and trainer
     pl.seed_everything(42)
 
-    # configure network and trainer
-    early_stop_callback = EarlyStopping(
-        monitor="val_loss",
-        min_delta=1e-4,
-        patience=10,
-        verbose=False,
-        mode="min"
-    )
-    lr_logger = LearningRateMonitor()
-    logger = TensorBoardLogger("lightning_logs")
-
+    early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
     trainer = pl.Trainer(
-        max_epochs=100,
+        max_epochs=5,
         gpus=0,
         weights_summary="top",
         gradient_clip_val=0.01,
@@ -109,7 +88,7 @@ if __name__ == "__main__":
 
     net = NBeats.from_dataset(
         training,
-        learning_rate=4e-3,
+        learning_rate=0.01,
         log_interval=10,
         log_val_interval=1,
         weight_decay=1e-2,
@@ -123,8 +102,22 @@ if __name__ == "__main__":
         val_dataloaders=val_dataloader,
     )
 
+    import pickle
+    with open(f"model/n_beats/training.pickle", "wb") as f:
+        pickle.dump(training, f)
+
     torch.save(net.state_dict(), "model/n_beats/n_beats.pt")
 
+    best_model_path = trainer.checkpoint_callback.best_model_path
+    best_model = NBeats.load_from_checkpoint(best_model_path)
+
+    actuals = torch.cat([y[0] for x, y in iter(val_dataloader)])
+    predictions = best_model.predict(val_dataloader)
+    (actuals - predictions).abs().mean()
+
+    raw_predictions, x = best_model.predict(val_dataloader, mode="raw", return_x=True)
+
+    best_model.plot_prediction(x, raw_predictions, idx=0, add_loss_to_title=True)
 
 
 
