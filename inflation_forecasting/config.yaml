@@ -53,10 +53,10 @@ model:
 #      'er_aop_lag6',
 #      'er_aop_lag12'
   ]
-  batch_size: 256
+  batch_size: 1024
   max_epochs: 1000
   gpus: 1
-  learning_rate: 0.001
+  learning_rate: 0.00001
   hidden_size: 150
   dropout: 0.2
   hidden_continuous_size: 80

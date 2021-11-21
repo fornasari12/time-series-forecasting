@@ -15,15 +15,19 @@ class LoadData:
             folder_list: str,
             cutoff: float,
             sample: str,
+            date_features: bool = True,
             sma: [list, int] = None,
-            lags: int = None
+            lags: int = None,
+            time_idx: bool = True,
     ):
         self.data_path = data_path
         self.folder_list = folder_list
         self.cutoff = cutoff
         self.sample = sample
+        self.date_features = date_features
         self.sma = sma
         self.lags = lags
+        self.time_idx = time_idx
         self.train_data = pd.DataFrame()
         self.test_data = pd.DataFrame()
 
@@ -168,7 +172,9 @@ class LoadData:
                     folder=folder,
                     file=file
                 )
-                self._create_date_features(df=df)
+
+                if self.date_features:
+                    self._create_date_features(df=df)
 
                 if self.sma:
 
@@ -185,7 +191,8 @@ class LoadData:
                         lags=self.lags
                     )
 
-                self._create_time_idx(df=df)
+                if self.time_idx:
+                    self._create_time_idx(df=df)
 
                 df_train, df_test = self._train_test_split(
                     df=df,
