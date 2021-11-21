@@ -29,7 +29,7 @@ model:
   model_path: "/content/model/tft.pt"
 
 model_local:
-  lags: 4
+  lags: None
   sma: [12, 6]
   time_varying_known_categoricals: [
         "hour",

@@ -22,15 +22,24 @@ HIDDEN_SIZE = spec["model"]["hidden_size"]
 DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
-lags = spec["model"]["lags"]
-sma = spec["model"]["sma"]
-lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+lags = spec["model_local"]["lags"]
+sma = spec["model_local"]["sma"]
 sma_columns = [f"sma_{sma}" for sma in sma]
-time_varying_known_reals = (
-        spec["model"]["time_varying_known_reals"] +
-        lags_columns +
-        sma_columns
-)
+
+if lags != "None":
+    lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+
+    time_varying_known_reals = (
+            spec["model_local"]["time_varying_known_reals"] +
+            lags_columns +
+            sma_columns
+    )
+if lags == "None":
+    lags = None
+    time_varying_known_reals = (
+            spec["model_local"]["time_varying_known_reals"] +
+            sma_columns
+    )
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 max_prediction_length = spec["model"]["max_prediction_length"]
 max_encoder_length = spec["model"]["max_encoder_length"]
