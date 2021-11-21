@@ -6,7 +6,6 @@ import torch
 from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet, NBeats
 from pytorch_forecasting.data import GroupNormalizer
-from pytorch_forecasting.data import NaNLabelEncoder
 
 from config import load_config
 from load_data import LoadData
@@ -63,9 +62,9 @@ train_data, test_data = LoadData(
     time_idx=True,
 ).load_data()
 
-#FIXME: change in LoadData and retrain
-train_data["value"] = train_data["value"].astype(float)
-test_data["value"] = test_data["value"].astype(float)
+# #FIXME: change in LoadData and retrain
+# train_data["value"] = train_data["value"].astype(float)
+# test_data["value"] = test_data["value"].astype(float)
 
 # _________________________________________________________________________________________________________________
 # Load N-BEATS Model:

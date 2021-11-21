@@ -51,6 +51,7 @@ if __name__ == "__main__":
     ).load_data()
 
     train_data["value"] = train_data["value"].astype(float)
+    test_data["value"] = test_data["value"].astype(float)
 
     training = TimeSeriesDataSet(
         train_data,
@@ -108,16 +109,22 @@ if __name__ == "__main__":
 
     torch.save(net.state_dict(), "model/n_beats/n_beats.pt")
 
-    best_model_path = trainer.checkpoint_callback.best_model_path
-    best_model = NBeats.load_from_checkpoint(best_model_path)
+    # best_model_path = trainer.checkpoint_callback.best_model_path
+    # best_model = NBeats.load_from_checkpoint(best_model_path)
+    #
+    # actuals = torch.cat([y[0] for x, y in iter(val_dataloader)])
+    # predictions = best_model.predict(val_dataloader)
+    # (actuals - predictions).abs().mean()
+    #
+    # raw_predictions, x = best_model.predict(val_dataloader, mode="raw", return_x=True)
+    #
+    # best_model.plot_prediction(x, raw_predictions, idx=0, add_loss_to_title=True)
+    df = test_data[:max_encoder_length]
+    y_hat_tft = net.predict(
+            df,
+            mode="prediction",
+            return_x=True)[0][0].tolist()
 
-    actuals = torch.cat([y[0] for x, y in iter(val_dataloader)])
-    predictions = best_model.predict(val_dataloader)
-    (actuals - predictions).abs().mean()
-
-    raw_predictions, x = best_model.predict(val_dataloader, mode="raw", return_x=True)
-
-    best_model.plot_prediction(x, raw_predictions, idx=0, add_loss_to_title=True)
-
+    print("a")
 
 
