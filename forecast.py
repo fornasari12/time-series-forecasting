@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 
 import torch
 from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
-from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet
+from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet, NBeats
 from pytorch_forecasting.data import GroupNormalizer
+from pytorch_forecasting.data import NaNLabelEncoder
 
 from config import load_config
 from load_data import LoadData
@@ -61,8 +62,32 @@ train_data, test_data = LoadData(
 ).load_data()
 
 # _________________________________________________________________________________________________________________
-# Load Temporal Fusion Transformer Model:
+# Load N-BEATS Model:
+training_n_beats = TimeSeriesDataSet(
+    train_data,
+    time_idx="time_idx",
+    target="value",
+    categorical_encoders={"id": NaNLabelEncoder().fit(train_data.id)},
+    group_ids=["id"],
+    time_varying_unknown_reals=["value"],
+    max_encoder_length=max_encoder_length,
+    max_prediction_length=max_prediction_length,
+)
 
+model_n_beats = NBeats.from_dataset(
+    training_n_beats,
+    learning_rate=4e-3,
+    log_interval=10,
+    log_val_interval=1,
+    weight_decay=1e-2,
+    widths=[32, 512],
+    backcast_loss_ratio=1.0,
+)
+
+model_n_beats.load_state_dict(torch.load("model/n_beats/n_beats.pt"))
+
+# _________________________________________________________________________________________________________________
+# Load Temporal Fusion Transformer Model:
 training = TimeSeriesDataSet(
     train_data,
     time_idx="time_idx",

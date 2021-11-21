@@ -87,7 +87,7 @@ if __name__ == "__main__":
         target_normalizer=GroupNormalizer(
             groups=["id"], transformation="softplus"
         ),
-        lags={"sma": [1, 2, 24, 48]},
+        lags={"sma_12": [1, 2, 24, 48]},
         add_relative_time_idx=True,
         add_target_scales=True,
         add_encoder_length=True,

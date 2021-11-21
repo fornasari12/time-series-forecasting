@@ -30,15 +30,15 @@ model:
 
 model_local:
   lags: None
-  sma: [12, 6]
+  sma: [ 12 ]
   time_varying_known_categoricals: [
-        "hour",
-        "month",
-        "day_of_week",
-        "day",
-        "weekofyear"
-    ]
-  time_varying_known_reals: ["time_idx"]
+      "hour",
+      "month",
+      "day_of_week",
+      "day",
+      "weekofyear"
+  ]
+  time_varying_known_reals: [ "time_idx" , "value"]
   batch_size: 1024
   max_epochs: 4
   gpus: 0
