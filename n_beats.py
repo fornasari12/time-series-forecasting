@@ -123,7 +123,7 @@ if __name__ == "__main__":
         val_dataloaders=val_dataloader,
     )
 
-    net.load_state_dict(torch.load("model/n_beats/n_beats.pt"))
+    torch.save(net.state_dict(), "model/n_beats/n_beats.pt")
 
 
 

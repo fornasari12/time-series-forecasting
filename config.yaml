@@ -13,7 +13,7 @@ model:
       "day",
       "weekofyear"
   ]
-  time_varying_known_reals: [ "time_idx" , "value"]
+  time_varying_known_reals: [ "time_idx" ]
   batch_size: 512
   max_epochs: 300
   gpus: 1
@@ -38,7 +38,7 @@ model_local:
       "day",
       "weekofyear"
   ]
-  time_varying_known_reals: [ "time_idx" , "value"]
+  time_varying_known_reals: [ "time_idx" ]
   batch_size: 1024
   max_epochs: 4
   gpus: 0

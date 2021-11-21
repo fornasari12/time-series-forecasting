@@ -50,6 +50,9 @@ max_encoder_length = spec["model"]["max_encoder_length"]
 sample = spec["model"]["sample"]
 cutoff = spec["model"]["cutoff"]
 
+
+# _________________________________________________________________________________________________________________
+# Load Data for all the models:
 train_data, test_data = LoadData(
     data_path=DATA_PATH,
     folder_list=FOLDER_LIST,

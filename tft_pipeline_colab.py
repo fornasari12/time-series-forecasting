@@ -31,26 +31,26 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
-lags = spec["model_local"]["lags"]
-sma = spec["model_local"]["sma"]
+lags = spec["model"]["lags"]
+sma = spec["model"]["sma"]
 sma_columns = [f"sma_{sma}" for sma in sma]
 
 if lags != "None":
     lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
 
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec["model"]["time_varying_known_reals"] +
             lags_columns +
             sma_columns
     )
 if lags == "None":
     lags = None
     time_varying_known_reals = (
-            spec["model_local"]["time_varying_known_reals"] +
+            spec["model"]["time_varying_known_reals"] +
             sma_columns
     )
 else:
-    time_varying_known_reals = (spec["model_local"]["time_varying_known_reals"])
+    time_varying_known_reals = (spec["model"]["time_varying_known_reals"])
 
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 
@@ -87,7 +87,7 @@ if __name__ == "__main__":
         target_normalizer=GroupNormalizer(
             groups=["id"], transformation="softplus"
         ),
-        lags={"sma_12": [1, 2, 24, 48]},
+        lags={"sma_12": [1, 24, 48]},
         add_relative_time_idx=True,
         add_target_scales=True,
         add_encoder_length=True,
