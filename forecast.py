@@ -40,6 +40,9 @@ if lags == "None":
             spec["model_local"]["time_varying_known_reals"] +
             sma_columns
     )
+else:
+    time_varying_known_reals = (spec["model_local"]["time_varying_known_reals"])
+
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 max_prediction_length = spec["model"]["max_prediction_length"]
 max_encoder_length = spec["model"]["max_encoder_length"]
@@ -154,4 +157,4 @@ for data_name in train_data.id.unique().tolist():
         plt.title(f"Forecasts for {data_name}")
         plt.pause(0.05)
 
-    plt.show()
+        plt.show()

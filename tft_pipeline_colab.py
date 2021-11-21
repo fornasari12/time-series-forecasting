@@ -49,6 +49,8 @@ if lags == "None":
             spec["model_local"]["time_varying_known_reals"] +
             sma_columns
     )
+else:
+    time_varying_known_reals = (spec["model_local"]["time_varying_known_reals"])
 
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 
@@ -72,7 +74,7 @@ if __name__ == "__main__":
         train_data,
         time_idx="time_idx",
         target="value",
-        group_ids=["dataset", "id"],
+        group_ids=["id"],
         min_encoder_length=max_encoder_length // 2,
         max_encoder_length=max_encoder_length,
         min_prediction_length=1,
@@ -83,8 +85,9 @@ if __name__ == "__main__":
         time_varying_unknown_categoricals=[],
         time_varying_unknown_reals=["value"],
         target_normalizer=GroupNormalizer(
-            groups=["dataset", "id"], transformation="softplus"
+            groups=["id"], transformation="softplus"
         ),
+        lags={"value": [1, 2, 24, 48]},
         add_relative_time_idx=True,
         add_target_scales=True,
         add_encoder_length=True,

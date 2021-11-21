@@ -5,7 +5,7 @@ general:
   ]
 model:
   lags: None
-  sma: [ 12, 6 ]
+  sma: [ 12 ]
   time_varying_known_categoricals: [
       "hour",
       "month",
@@ -13,7 +13,7 @@ model:
       "day",
       "weekofyear"
   ]
-  time_varying_known_reals: [ "time_idx" ]
+  time_varying_known_reals: [ "time_idx" , "value"]
   batch_size: 512
   max_epochs: 200
   gpus: 1
