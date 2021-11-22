@@ -28,20 +28,15 @@ args = parser.parse_args()
 
 LOCAL = args.local
 
+spec = load_config("config.yaml")
 if LOCAL:
     model_key = "model_local"
-    spec = load_config("config.yaml")
-    DATA_PATH = spec["general"]["data_path"]
     MODEL_PATH = spec[model_key]["model_path"]
 else:
     model_key = "model"
-    import tensorflow as tf
-    import tensorboard as tb
-    tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
-    spec = load_config("/content/temporal-fusion-transformer/config.yaml")
-    DATA_PATH = "/content/temporal-fusion-transformer/" + spec["general"]["data_path"]
-    MODEL_PATH = "model/temporal_fusion_transformer/tft.pt"
+    MODEL_PATH = "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/tft.pt"
 
+DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
 BATCH_SIZE = spec[model_key]["batch_size"]
 MAX_EPOCHS = spec[model_key]["max_epochs"]

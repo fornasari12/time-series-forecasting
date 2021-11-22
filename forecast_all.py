@@ -102,7 +102,6 @@ training = TimeSeriesDataSet(
     target_normalizer=GroupNormalizer(
         groups=["id"], transformation="softplus"
     ),
-    lags={"sma_12": [1, 24, 48]},
     add_relative_time_idx=True,
     add_target_scales=True,
     add_encoder_length=True,
@@ -110,19 +109,19 @@ training = TimeSeriesDataSet(
 )
 
 model = TemporalFusionTransformer.from_dataset(
-    training,
-    learning_rate=LEARNING_RATE,
-    hidden_size=HIDDEN_SIZE,
-    attention_head_size=1,
-    dropout=DROPOUT,
-    hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
-    output_size=7,
-    loss=QuantileLoss(),
-    log_interval=10,
-    reduce_on_plateau_patience=4,
-    )
+        training,
+        learning_rate=LEARNING_RATE,
+        hidden_size=HIDDEN_SIZE,
+        attention_head_size=1,
+        dropout=DROPOUT,
+        hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
+        output_size=7,
+        loss=QuantileLoss(),
+        log_interval=10,
+        reduce_on_plateau_patience=4,
+)
 
-model.load_state_dict(torch.load("model/temporal_fusion_transformer/tft.pt"))
+model.load_state_dict(torch.load("/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/tft.pt"))
 
 for data_name in train_data.id.unique().tolist():
 
@@ -166,7 +165,7 @@ for data_name in train_data.id.unique().tolist():
         )
 
         # Plot forecasts and observed values
-        ax = test_data_es[start+50: start + max_encoder_length + max_prediction_length].plot(
+        ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
             figsize=(10, 6),
             marker="o",
             color="black",
@@ -180,4 +179,4 @@ for data_name in train_data.id.unique().tolist():
         plt.title(f"Forecasts for {data_name}")
         plt.pause(0.05)
 
-        plt.show()
+    plt.show()
