@@ -3,6 +3,8 @@ general:
   folder_list: [
       'realTweets'
   ]
+  scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
+  model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
 model:
   lags: None
   sma: [ 12 ]
@@ -27,8 +29,6 @@ model:
   sample: "60min"
   cutoff: 0.70
   model_path: "/content/drive/MyDrive/Colab_Notebooks/model/tft.pt"
-  scaler_path_nbeats: "/content/drive/MyDrive/Colab_Notebooks/model/scaler.pickle"
-  model_path_nbeats: "/content/drive/MyDrive/Colab_Notebooks/model/n_beats.pickle"
 
 model_local:
   lags: None
@@ -60,11 +60,11 @@ nbeats:
     output_chunk_length: 24
     num_stacks: 10
     num_blocks: 1
-    num_layers: 4
+    num_layers: 10
     layer_widths: 512
-    n_epochs: 150
+    n_epochs: 500
     nr_epochs_val_period: 1
-    batch_size: 512
+    batch_size: 800
     model_name: 'nbeats_run'
     sample: "60min"
     cutoff: 0.70

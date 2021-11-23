@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import torch
-from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
-from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet, NBeats
+from pytorch_forecasting.metrics import QuantileLoss
+from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
 
 from darts import TimeSeries
@@ -14,6 +14,10 @@ from config import load_config
 from load_data import LoadData
 
 spec = load_config("config.yaml")
+
+MODEL_PATH_NBEATS = spec["general"]["model_path_nbeats"]
+SCALER_PATH_NBEATS = spec["general"]["scaler_path_nbeats"]
+
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
 MODEL_PATH = spec["model"]["model_path"]
@@ -64,14 +68,6 @@ train_data, test_data = LoadData(
     lags=lags,
     time_idx=True,
 ).load_data()
-
-# _________________________________________________________________________________________________________________
-# Load N-BEATS Model & Scaler_dict:
-with open("model/n_beats/n_beats.pickle", "rb") as f:
-    model_n_beats = pickle.load(f)
-
-with open("model/n_beats/scaler.pickle", "rb") as f:
-    scaler_dict = pickle.load(f)
 
 # _________________________________________________________________________________________________________________
 # Load Temporal Fusion Transformer Model:
@@ -135,20 +131,6 @@ for data_name in train_data.id.unique().tolist():
         ].reset_index(drop=True)
 
     # _________________________________________________________________________________________________________________
-    # N-BEATS Data:
-    test_data_nbeats = test_data[
-        (test_data["id"] == data_name)
-        ][["date", "value"]].reset_index(drop=True)
-
-    scaler = scaler_dict[data_name]
-
-    test_data_nbeats = scaler.fit_transform(
-        TimeSeries.from_dataframe(
-            df=test_data_nbeats,
-            time_col="date"
-        )
-    )
-    # _________________________________________________________________________________________________________________
     # Forecast:
     for start in range(0, 80, 1):
 
@@ -167,16 +149,11 @@ for data_name in train_data.id.unique().tolist():
                 mode="prediction",
                 return_x=True)[0][0].tolist()
         )
-        y_hat_nbeats = model_n_beats.predict(
-            n=max_prediction_length,
-            series=test_data_nbeats.slice_n_points_after(
-                start_ts=start,
-                n=max_encoder_length
-            )
+        y_hat_nbeats = pd.read_csv(
+            f"/Volumes/GoogleDrive/My Drive/Colab_Notebooks/data_nbeats/{data_name}_{start}.csv"
         )
-
-        y_hat_nbeats = scaler.inverse_transform(y_hat_nbeats)
-        y_hat_nbeats = y_hat_nbeats.pd_dataframe()
+        y_hat_nbeats = y_hat_nbeats.set_index(pd.to_datetime(y_hat_nbeats.time))
+        y_hat_nbeats = y_hat_nbeats.drop(columns="time")
 
         # Plot forecasts and observed values
         ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
@@ -195,4 +172,4 @@ for data_name in train_data.id.unique().tolist():
         plt.title(f"Forecasts for {data_name}")
         plt.pause(0.05)
 
-        plt.show()
+    plt.show()
