@@ -27,6 +27,8 @@ model:
   sample: "60min"
   cutoff: 0.70
   model_path: "/content/drive/MyDrive/Colab_Notebooks/model/tft.pt"
+  scaler_path_nbeats: "/content/drive/MyDrive/Colab_Notebooks/model/scaler.pickle"
+  model_path_nbeats: "/content/drive/MyDrive/Colab_Notebooks/model/n_beats.pickle"
 
 model_local:
   lags: None
@@ -52,3 +54,35 @@ model_local:
   sample: "60min"
   cutoff: 0.70
   model_path: "model/temporal_fusion_transformer/tft_local.pt"
+
+nbeats:
+    input_chunk_length: 48
+    output_chunk_length: 24
+    num_stacks: 10
+    num_blocks: 1
+    num_layers: 4
+    layer_widths: 512
+    n_epochs: 150
+    nr_epochs_val_period: 1
+    batch_size: 512
+    model_name: 'nbeats_run'
+    sample: "60min"
+    cutoff: 0.70
+    model_path: "/content/drive/MyDrive/Colab_Notebooks/model/n_beats/n_beats.pickle"
+    scaler_path: "/content/drive/MyDrive/Colab_Notebooks/model/n_beats/scaler.pickle"
+
+nbeats_local:
+    input_chunk_length: 48
+    output_chunk_length: 24
+    num_stacks: 10
+    num_blocks: 1
+    num_layers: 4
+    layer_widths: 300
+    n_epochs: 5
+    nr_epochs_val_period: 1
+    batch_size: 2048
+    model_name: 'nbeats_run'
+    sample: "60min"
+    cutoff: 0.70
+    model_path: "model/n_beats/n_beats_local.pickle"
+    scaler_path: "model/n_beats/scaler_local.pickle"

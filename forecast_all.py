@@ -7,6 +7,9 @@ from pytorch_forecasting.metrics import SMAPE, PoissonLoss, QuantileLoss
 from pytorch_forecasting import Baseline, TemporalFusionTransformer, TimeSeriesDataSet, NBeats
 from pytorch_forecasting.data import GroupNormalizer
 
+from darts import TimeSeries
+from darts.dataprocessing.transformers import Scaler
+
 from config import load_config
 from load_data import LoadData
 
@@ -50,7 +53,7 @@ sample = spec["model"]["sample"]
 cutoff = spec["model"]["cutoff"]
 
 # _________________________________________________________________________________________________________________
-# Load Data for all the models:
+# Load Data for PyTorch Models:
 train_data, test_data = LoadData(
     data_path=DATA_PATH,
     folder_list=FOLDER_LIST,
@@ -62,26 +65,13 @@ train_data, test_data = LoadData(
     time_idx=True,
 ).load_data()
 
-# #FIXME: change in LoadData and retrain
-# train_data["value"] = train_data["value"].astype(float)
-# test_data["value"] = test_data["value"].astype(float)
-
 # _________________________________________________________________________________________________________________
-# Load N-BEATS Model:
-with open(f"model/n_beats/training.pickle", "rb") as f:
-    training_n_beats = pickle.load(f)
+# Load N-BEATS Model & Scaler_dict:
+with open("model/n_beats/n_beats.pickle", "rb") as f:
+    model_n_beats = pickle.load(f)
 
-model_n_beats = NBeats.from_dataset(
-    training_n_beats,
-    learning_rate=4e-3,
-    log_interval=10,
-    log_val_interval=1,
-    weight_decay=1e-2,
-    widths=[32, 512],
-    backcast_loss_ratio=1.0,
-)
-
-model_n_beats.load_state_dict(torch.load("model/n_beats/n_beats.pt"))
+with open("model/n_beats/scaler.pickle", "rb") as f:
+    scaler_dict = pickle.load(f)
 
 # _________________________________________________________________________________________________________________
 # Load Temporal Fusion Transformer Model:
@@ -145,6 +135,20 @@ for data_name in train_data.id.unique().tolist():
         ].reset_index(drop=True)
 
     # _________________________________________________________________________________________________________________
+    # N-BEATS Data:
+    test_data_nbeats = test_data[
+        (test_data["id"] == data_name)
+        ][["date", "value"]].reset_index(drop=True)
+
+    scaler = scaler_dict[data_name]
+
+    test_data_nbeats = scaler.fit_transform(
+        TimeSeries.from_dataframe(
+            df=test_data_nbeats,
+            time_col="date"
+        )
+    )
+    # _________________________________________________________________________________________________________________
     # Forecast:
     for start in range(0, 80, 1):
 
@@ -163,6 +167,16 @@ for data_name in train_data.id.unique().tolist():
                 mode="prediction",
                 return_x=True)[0][0].tolist()
         )
+        y_hat_nbeats = model_n_beats.predict(
+            n=max_prediction_length,
+            series=test_data_nbeats.slice_n_points_after(
+                start_ts=start,
+                n=max_encoder_length
+            )
+        )
+
+        y_hat_nbeats = scaler.inverse_transform(y_hat_nbeats)
+        y_hat_nbeats = y_hat_nbeats.pd_dataframe()
 
         # Plot forecasts and observed values
         ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
@@ -175,8 +189,10 @@ for data_name in train_data.id.unique().tolist():
                       label="exponential_smoothing")
         y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
                        label="temporal_fusion_transformer")
+        y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
+                       label="N=BEATS")
 
         plt.title(f"Forecasts for {data_name}")
         plt.pause(0.05)
 
-    plt.show()
+        plt.show()

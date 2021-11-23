@@ -1,5 +1,6 @@
 from os import listdir
 from os.path import isfile, join
+import pickle
 import pandas as pd
 
 
@@ -203,3 +204,39 @@ class LoadData:
                 )
 
         return self.train_data, self.test_data
+
+    def load_data_darts(
+            self,
+            scaler_path
+    ):
+
+        from darts import TimeSeries
+        from darts.dataprocessing.transformers import Scaler
+
+        scaler_dict = {}
+        series_dict = {}
+
+        for folder in self.folder_list:
+
+            file_list = self.get_file_list(
+                folder=folder
+            )
+
+            for file in file_list:
+                df = self._load_dataframe(folder=folder, file=file)
+                df = self._resample_df(df=df, sample=self.sample)
+
+                scaler = Scaler()
+                serie = scaler.fit_transform(TimeSeries.from_dataframe(df=df, time_col="date"))
+                train_split = int(len(serie.pd_dataframe()) * self.cutoff)
+
+                train, test = serie.split_after(train_split)
+
+                scaler_dict[file.replace(".csv", "")] = scaler
+                series_dict[file.replace(".csv", "")] = [train, test]
+
+        with open(scaler_path, "wb") as f:
+            pickle.dump(scaler_dict, f)
+
+        return series_dict
+
