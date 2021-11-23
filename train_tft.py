@@ -52,25 +52,17 @@ GRADIENT_CLIP_VAL = spec[model_key]["gradient_clip_val"]
 
 lags = spec[model_key]["lags"]
 sma = spec[model_key]["sma"]
-sma_columns = [f"sma_{sma}" for sma in sma]
 
-if lags != "None":
-    lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+time_varying_known_reals = spec[model_key]["time_varying_known_reals"]
 
-    time_varying_known_reals = (
-            spec[model_key]["time_varying_known_reals"] +
-            lags_columns +
-            sma_columns
-    )
-if lags == "None":
-    lags = None
-    time_varying_known_reals = (
-            spec[model_key]["time_varying_known_reals"] +
-            sma_columns
-    )
+if lags:
+    lags_columns = [f"lag_{lag}" for lag in range(lags, 0, -1)]
+    time_varying_known_reals = time_varying_known_reals + lags_columns
 
-else:
-    time_varying_known_reals = spec[model_key]["time_varying_known_reals"]
+if sma:
+    sma_columns = [f"sma_{sma}" for sma in sma]
+    time_varying_known_reals = time_varying_known_reals + sma_columns
+
 
 time_varying_known_categoricals = spec[model_key]["time_varying_known_categoricals"]
 max_prediction_length = spec[model_key]["max_prediction_length"]

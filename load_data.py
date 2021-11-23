@@ -116,7 +116,7 @@ class LoadData:
 
         df_lags = pd.DataFrame()
         for lag in range(lags, 0, -1):
-            df_lags[f'(t-{lag})'] = \
+            df_lags[f'lag_{lag}'] = \
                 df[column_name].shift(lag).fillna(method="bfill")
 
         return pd.concat([df_lags, df], axis=1)

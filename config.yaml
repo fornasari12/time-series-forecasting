@@ -6,8 +6,8 @@ general:
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
 model:
-  lags: None
-  sma: [ 12 ]
+  lags: null
+  sma: null
   time_varying_known_categoricals: [
       "hour",
       "month",
@@ -29,10 +29,11 @@ model:
   sample: "60min"
   cutoff: 0.70
   model_path: "/content/drive/MyDrive/Colab_Notebooks/model/tft.pt"
+  hyperparameters_path: "/content/drive/MyDrive/Colab_Notebooks/model/tuning_study.pkl"
 
 model_local:
-  lags: None
-  sma: [ 12 ]
+  lags: null
+  sma: null
   time_varying_known_categoricals: [
       "hour",
       "month",
@@ -54,17 +55,18 @@ model_local:
   sample: "60min"
   cutoff: 0.70
   model_path: "model/temporal_fusion_transformer/tft_local.pt"
+  hyperparameters_path: "model/temporal_fusion_transformer/tuning_study.pkl"
 
 nbeats:
     input_chunk_length: 48
     output_chunk_length: 24
     num_stacks: 10
     num_blocks: 1
-    num_layers: 10
+    num_layers: 15
     layer_widths: 512
-    n_epochs: 500
+    n_epochs: 3000
     nr_epochs_val_period: 1
-    batch_size: 800
+    batch_size: 1024
     model_name: 'nbeats_run'
     sample: "60min"
     cutoff: 0.70

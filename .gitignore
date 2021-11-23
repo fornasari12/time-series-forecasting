@@ -133,3 +133,4 @@ lightning_logs/
 optuna_test/
 test_study.pkl
 model/n_beats/
+model/temporal_fusion_transformer/

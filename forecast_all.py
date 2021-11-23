@@ -7,9 +7,6 @@ from pytorch_forecasting.metrics import QuantileLoss
 from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
 
-from darts import TimeSeries
-from darts.dataprocessing.transformers import Scaler
-
 from config import load_config
 from load_data import LoadData
 
@@ -109,6 +106,8 @@ model = TemporalFusionTransformer.from_dataset(
 
 model.load_state_dict(torch.load("/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/tft.pt"))
 
+errors = pd.DataFrame()
+
 for data_name in train_data.id.unique().tolist():
 
     # _________________________________________________________________________________________________________________
@@ -132,44 +131,70 @@ for data_name in train_data.id.unique().tolist():
 
     # _________________________________________________________________________________________________________________
     # Forecast:
-    for start in range(0, 80, 1):
+    errors_data_name = pd.DataFrame()
+    for start in range(0, 120, 1):
 
-        # Update ES with new Data.
-        model_es.update(
-            test_data_es[start:(start + max_encoder_length)],
-            update_params=False,
-        )
+        try:
+            # Update ES with new Data.
+            model_es.update(
+                test_data_es[start:(start + max_encoder_length)],
+                update_params=False,
+            )
 
-        # Make forecast for es & tft:
-        y_hat_es = model_es.predict(list(range(1, max_prediction_length + 1)))
-        y_hat_tft = pd.Series(
-            index=y_hat_es.index,
-            data=model.predict(
-                test_data_tft[start:(start + max_encoder_length)],
-                mode="prediction",
-                return_x=True)[0][0].tolist()
-        )
-        y_hat_nbeats = pd.read_csv(
-            f"/Volumes/GoogleDrive/My Drive/Colab_Notebooks/data_nbeats/{data_name}_{start}.csv"
-        )
-        y_hat_nbeats = y_hat_nbeats.set_index(pd.to_datetime(y_hat_nbeats.time))
-        y_hat_nbeats = y_hat_nbeats.drop(columns="time")
+            # Make forecast for es & tft:
+            y_hat_es = model_es.predict(list(range(1, max_prediction_length + 1)))
+            y_hat_tft = pd.Series(
+                index=y_hat_es.index,
+                data=model.predict(
+                    test_data_tft[start:(start + max_encoder_length)],
+                    mode="prediction",
+                    return_x=True)[0][0].tolist()
+            )
+            y_hat_nbeats = pd.read_csv(
+                f"/Volumes/GoogleDrive/My Drive/Colab_Notebooks/data_nbeats/{data_name}_{start}.csv"
+            )
+            y_hat_nbeats = y_hat_nbeats.set_index(pd.to_datetime(y_hat_nbeats.time))
+            y_hat_nbeats = y_hat_nbeats.drop(columns="time")
 
-        # Plot forecasts and observed values
-        ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
-            figsize=(10, 6),
-            marker="o",
-            color="black",
-            label="observed"
-        )
-        y_hat_es.plot(ax=ax, style="--", marker="o", color="red",
-                      label="exponential_smoothing")
-        y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
-                       label="temporal_fusion_transformer")
-        y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
-                       label="N=BEATS")
+            y_obs = test_data_es[start + max_encoder_length: start + max_encoder_length + max_prediction_length]
 
-        plt.title(f"Forecasts for {data_name}")
-        plt.pause(0.05)
+            # Plot forecasts and observed values
+        #     ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
+        #         figsize=(10, 6),
+        #         marker="o",
+        #         color="black",
+        #         label="observed"
+        #     )
+        #     y_hat_es.plot(ax=ax, style="--", marker="o", color="red",
+        #                   label="exponential_smoothing")
+        #     y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
+        #                    label="temporal_fusion_transformer")
+        #     y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
+        #                    label="N=BEATS")
+        #
+            df_errors = pd.concat([y_obs, y_hat_tft, y_hat_es, y_hat_nbeats], axis=1).reset_index(drop=True)
+            df_errors.columns = ["observed", "tft", "ets", "nbeats"]
+            df_errors["step"] = [step for step in range(1, max_prediction_length + 1, 1)]
 
-    plt.show()
+            errors = pd.concat([errors, df_errors], axis=0)
+            errors_data_name = pd.concat([errors_data_name, df_errors], axis=0)
+
+        except Exception as e:
+            print(f"problem at data_name:{data_name} & step: {start}")
+            continue
+
+    #
+    #     plt.title(f"Forecasts for {data_name}")
+    #     # plt.pause(0.05)
+    #     #
+    # plt.show(block=False)
+    # plt.pause(0.0005)
+    # plt.close()
+
+    errors_data_name.to_csv(f"model/n_beats/errors_{data_name}.csv")
+    print(data_name)
+
+errors.to_csv("model/n_beats/errors.csv")
+
+
+
