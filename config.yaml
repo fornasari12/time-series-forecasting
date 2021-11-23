@@ -5,6 +5,7 @@ general:
   ]
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
+
 model:
   lags: null
   sma: null
@@ -19,11 +20,12 @@ model:
   batch_size: 512
   max_epochs: 300
   gpus: 1
-  learning_rate: 0.0001
-  hidden_size: 100
-  dropout: 0.2
-  hidden_continuous_size: 50
-  gradient_clip_val: 0.3
+  learning_rate: 0.04559299372495211
+  hidden_size: 72
+  dropout: 0.21387145479502692
+  hidden_continuous_size: 9
+  gradient_clip_val: 0.8397065210970555
+  attention_head_size: 2
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"
@@ -50,6 +52,7 @@ model_local:
   dropout: 0.2
   hidden_continuous_size: 4
   gradient_clip_val: 0.3
+  attention_head_size: 2
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"

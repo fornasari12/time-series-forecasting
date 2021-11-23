@@ -49,6 +49,7 @@ HIDDEN_SIZE = spec[model_key]["hidden_size"]
 DROPOUT = spec[model_key]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec[model_key]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec[model_key]["gradient_clip_val"]
+ATTENTION_HEAD_SIZE = spec[model_key]["attention_head_size"]
 
 lags = spec[model_key]["lags"]
 sma = spec[model_key]["sma"]
@@ -153,7 +154,7 @@ if __name__ == "__main__":
         training,
         learning_rate=LEARNING_RATE,
         hidden_size=HIDDEN_SIZE,
-        attention_head_size=1,
+        attention_head_size=ATTENTION_HEAD_SIZE,
         dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
         output_size=7,

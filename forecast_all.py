@@ -26,6 +26,8 @@ HIDDEN_SIZE = spec["model"]["hidden_size"]
 DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
+ATTENTION_HEAD_SIZE = spec["model"]["attention_head_size"]
+
 lags = spec["model"]["lags"]
 sma = spec["model"]["sma"]
 sma_columns = [f"sma_{sma}" for sma in sma]
@@ -95,7 +97,7 @@ model = TemporalFusionTransformer.from_dataset(
         training,
         learning_rate=LEARNING_RATE,
         hidden_size=HIDDEN_SIZE,
-        attention_head_size=1,
+        attention_head_size=ATTENTION_HEAD_SIZE,
         dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
         output_size=7,
