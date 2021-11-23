@@ -132,4 +132,4 @@ dmypy.json
 lightning_logs/
 optuna_test/
 test_study.pkl
-model/n_beats/
+#model/n_beats/
