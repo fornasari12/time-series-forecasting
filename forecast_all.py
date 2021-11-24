@@ -27,27 +27,20 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 ATTENTION_HEAD_SIZE = spec["model"]["attention_head_size"]
+LSTM_LAYERS = spec["model"]["lstm_layers"]
 
 lags = spec["model"]["lags"]
 sma = spec["model"]["sma"]
-sma_columns = [f"sma_{sma}" for sma in sma]
 
-if lags != "None":
-    lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+time_varying_known_reals = spec["model"]["time_varying_known_reals"]
 
-    time_varying_known_reals = (
-            spec["model"]["time_varying_known_reals"] +
-            lags_columns +
-            sma_columns
-    )
-if lags == "None":
-    lags = None
-    time_varying_known_reals = (
-            spec["model"]["time_varying_known_reals"] +
-            sma_columns
-    )
-else:
-    time_varying_known_reals = (spec["model"]["time_varying_known_reals"])
+if lags:
+    lags_columns = [f"lag_{lag}" for lag in range(lags, 0, -1)]
+    time_varying_known_reals = time_varying_known_reals + lags_columns
+
+if sma:
+    sma_columns = [f"sma_{sma}" for sma in sma]
+    time_varying_known_reals = time_varying_known_reals + sma_columns
 
 time_varying_known_categoricals = spec["model"]["time_varying_known_categoricals"]
 max_prediction_length = spec["model"]["max_prediction_length"]
@@ -97,6 +90,7 @@ model = TemporalFusionTransformer.from_dataset(
         training,
         learning_rate=LEARNING_RATE,
         hidden_size=HIDDEN_SIZE,
+        lstm_layers=LSTM_LAYERS,
         attention_head_size=ATTENTION_HEAD_SIZE,
         dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
@@ -134,7 +128,7 @@ for data_name in train_data.id.unique().tolist():
     # _________________________________________________________________________________________________________________
     # Forecast:
     errors_data_name = pd.DataFrame()
-    for start in range(0, 120, 1):
+    for start in range(0, 107, 1):
 
         try:
             # Update ES with new Data.
@@ -161,19 +155,19 @@ for data_name in train_data.id.unique().tolist():
             y_obs = test_data_es[start + max_encoder_length: start + max_encoder_length + max_prediction_length]
 
             # Plot forecasts and observed values
-        #     ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
-        #         figsize=(10, 6),
-        #         marker="o",
-        #         color="black",
-        #         label="observed"
-        #     )
-        #     y_hat_es.plot(ax=ax, style="--", marker="o", color="red",
-        #                   label="exponential_smoothing")
-        #     y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
-        #                    label="temporal_fusion_transformer")
-        #     y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
-        #                    label="N=BEATS")
-        #
+            ax = test_data_es[start: start + max_encoder_length + max_prediction_length].plot(
+                figsize=(10, 6),
+                marker="o",
+                color="black",
+                label="observed"
+            )
+            y_hat_es.plot(ax=ax, style="--", marker="o", color="red",
+                          label="exponential_smoothing")
+            y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
+                           label="temporal_fusion_transformer")
+            y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
+                           label="N=BEATS")
+
             df_errors = pd.concat([y_obs, y_hat_tft, y_hat_es, y_hat_nbeats], axis=1).reset_index(drop=True)
             df_errors.columns = ["observed", "tft", "ets", "nbeats"]
             df_errors["step"] = [step for step in range(1, max_prediction_length + 1, 1)]
@@ -185,13 +179,13 @@ for data_name in train_data.id.unique().tolist():
             print(f"problem at data_name:{data_name} & step: {start}")
             continue
 
-    #
-    #     plt.title(f"Forecasts for {data_name}")
-    #     # plt.pause(0.05)
-    #     #
-    # plt.show(block=False)
-    # plt.pause(0.0005)
-    # plt.close()
+
+        plt.title(f"Forecasts for {data_name}")
+        # plt.pause(0.05)
+
+        plt.show(block=False)
+        plt.pause(0.0005)
+        plt.close()
 
     errors_data_name.to_csv(f"model/n_beats/errors_{data_name}.csv")
     print(data_name)

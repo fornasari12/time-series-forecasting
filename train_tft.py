@@ -50,6 +50,7 @@ DROPOUT = spec[model_key]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec[model_key]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec[model_key]["gradient_clip_val"]
 ATTENTION_HEAD_SIZE = spec[model_key]["attention_head_size"]
+LSTM_LAYERS = spec[model_key]["lstm_layers"]
 
 lags = spec[model_key]["lags"]
 sma = spec[model_key]["sma"]
@@ -154,13 +155,14 @@ if __name__ == "__main__":
         training,
         learning_rate=LEARNING_RATE,
         hidden_size=HIDDEN_SIZE,
+        lstm_layers=LSTM_LAYERS,
         attention_head_size=ATTENTION_HEAD_SIZE,
         dropout=DROPOUT,
         hidden_continuous_size=HIDDEN_CONTINUOUS_SIZE,
         output_size=7,
         loss=QuantileLoss(),
         log_interval=10,
-        reduce_on_plateau_patience=4,
+        reduce_on_plateau_patience=20,
     )
 
     # fit network

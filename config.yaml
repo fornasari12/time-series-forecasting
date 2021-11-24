@@ -17,15 +17,16 @@ model:
       "weekofyear"
   ]
   time_varying_known_reals: [ "time_idx" ]
-  batch_size: 512
-  max_epochs: 300
+  batch_size: 1024
+  max_epochs: 3000
   gpus: 1
-  learning_rate: 0.04559299372495211
+  learning_rate: 0.001
   hidden_size: 72
   dropout: 0.21387145479502692
   hidden_continuous_size: 9
   gradient_clip_val: 0.8397065210970555
-  attention_head_size: 2
+  attention_head_size: 4
+  lstm_layers: 2
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"
@@ -53,6 +54,7 @@ model_local:
   hidden_continuous_size: 4
   gradient_clip_val: 0.3
   attention_head_size: 2
+  lstm_layers: 2
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"
