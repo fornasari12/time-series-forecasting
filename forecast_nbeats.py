@@ -79,7 +79,7 @@ for data_name in train_data.id.unique().tolist():
     )
     # _________________________________________________________________________________________________________________
     # Forecast:
-    for start in range(0, 300, 1):
+    for start in range(0, 107, 1):
 
         y_hat_nbeats = model_n_beats.predict(
             n=max_prediction_length,

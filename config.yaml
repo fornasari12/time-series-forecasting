@@ -69,9 +69,9 @@ nbeats:
     num_blocks: 1
     num_layers: 15
     layer_widths: 512
-    n_epochs: 3000
+    n_epochs: 4000
     nr_epochs_val_period: 1
-    batch_size: 1024
+    batch_size: 512
     model_name: 'nbeats_run'
     sample: "60min"
     cutoff: 0.70

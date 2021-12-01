@@ -51,25 +51,16 @@ LSTM_LAYERS = spec[model_key]["lstm_layers"]
 
 lags = spec[model_key]["lags"]
 sma = spec[model_key]["sma"]
-sma_columns = [f"sma_{sma}" for sma in sma]
 
-if lags != "None":
-    lags_columns = [f"(t-{lag})" for lag in range(lags, 0, -1)]
+time_varying_known_reals = spec[model_key]["time_varying_known_reals"]
 
-    time_varying_known_reals = (
-            spec[model_key]["time_varying_known_reals"] +
-            lags_columns +
-            sma_columns
-    )
-if lags == "None":
-    lags = None
-    time_varying_known_reals = (
-            spec[model_key]["time_varying_known_reals"] +
-            sma_columns
-    )
+if lags:
+    lags_columns = [f"lag_{lag}" for lag in range(lags, 0, -1)]
+    time_varying_known_reals = time_varying_known_reals + lags_columns
 
-else:
-    time_varying_known_reals = spec[model_key]["time_varying_known_reals"]
+if sma:
+    sma_columns = [f"sma_{sma}" for sma in sma]
+    time_varying_known_reals = time_varying_known_reals + sma_columns
 
 time_varying_known_categoricals = spec[model_key]["time_varying_known_categoricals"]
 max_prediction_length = spec[model_key]["max_prediction_length"]
@@ -170,6 +161,8 @@ for folder in FOLDER_LIST:
 
             plt.title(f'{file}')
             plt.legend()
-            plt.pause(0.05)
+            # plt.pause(0.05)
 
-    plt.show()
+            plt.show(block=False)
+            plt.pause(0.00005)
+            plt.close()
