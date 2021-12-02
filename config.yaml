@@ -5,7 +5,8 @@ general:
       'realTraffic',
       'realKnownCause',
       'realAdExchange',
-      'realAWSCloudWatch',
+      'realAWSCloudwatch',
+#      'M4Hourly'
   ]
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
@@ -21,10 +22,10 @@ model:
       "weekofyear"
   ]
   time_varying_known_reals: [ "time_idx" ]
-  batch_size: 1024
-  max_epochs: 3000
+  batch_size: 512
+  max_epochs: 600
   gpus: 1
-  learning_rate: 0.001
+  learning_rate: 0.005
   hidden_size: 100
   dropout: 0.21387145479502692
   hidden_continuous_size: 50

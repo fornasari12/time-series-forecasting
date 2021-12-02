@@ -76,7 +76,9 @@ for data_name in train_data.id.unique().tolist():
             color="blue",
             title=f"Forecasts for {data_name}")
 
-        plt.show()
+        plt.show(block=False)
+        plt.pause(0.000005)
+        plt.close()
 
 
 
