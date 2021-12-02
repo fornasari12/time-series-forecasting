@@ -1,5 +1,6 @@
 import warnings
 import argparse
+import pandas as pd
 
 from config import load_config
 from load_data import LoadData
@@ -82,6 +83,14 @@ if __name__ == "__main__":
         sma=sma,
         lags=lags
     ).load_data()
+
+    for column in train_data.columns:
+        if train_data[column].dtype == object:
+            train_data[column] = train_data[column].astype(str).astype("category")
+        # if train_data[column].dtype == "float64":
+        #     train_data[column] = pd.to_numeric(train_data[column], downcast="float")
+        # if train_data[column].dtype == "int64":
+        #     train_data[column] = pd.to_numeric(train_data[column], downcast="integer")
 
     training = TimeSeriesDataSet(
         train_data,

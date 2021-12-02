@@ -1,7 +1,8 @@
 general:
   data_path: "data"
   folder_list: [
-      'realTweets'
+      'realTweets',
+      'realTraffic'
   ]
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
@@ -17,13 +18,13 @@ model:
       "weekofyear"
   ]
   time_varying_known_reals: [ "time_idx" ]
-  batch_size: 1024
+  batch_size: 512
   max_epochs: 3000
   gpus: 1
-  learning_rate: 0.001
+  learning_rate: 0.0001
   hidden_size: 72
   dropout: 0.21387145479502692
-  hidden_continuous_size: 9
+  hidden_continuous_size: 50
   gradient_clip_val: 0.8397065210970555
   attention_head_size: 4
   lstm_layers: 2
@@ -45,7 +46,7 @@ model_local:
       "weekofyear"
   ]
   time_varying_known_reals: [ "time_idx" ]
-  batch_size: 1024
+  batch_size: 2048
   max_epochs: 4
   gpus: 0
   learning_rate: 0.01

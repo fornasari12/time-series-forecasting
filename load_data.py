@@ -50,8 +50,23 @@ class LoadData:
         file_path = f"{self.data_path}/{folder}/{file}"
         df = pd.read_csv(file_path)
 
-        # FIXME: Auto detect date column
-        df = df.rename(columns={"timestamp": "date"})
+        for column in df.columns:
+            if df[column].dtype == 'object':
+                try:
+                    df[column] = pd.to_datetime(df[column])
+                except ValueError:
+                    continue
+
+        # Get name of all datetime columns:
+        datetime_columns = list(
+            df.select_dtypes(include=['datetime64']).columns
+        )
+
+        assert len(datetime_columns) == 1, \
+            "There could only be one datetime column, please check!"
+
+        datetime_column = datetime_columns[0]
+        df = df.rename(columns={datetime_column: "date"})
 
         return df
 
@@ -78,25 +93,19 @@ class LoadData:
         df["id"] = file.replace(".csv", "")
 
     @staticmethod
-    def _create_date_features(df: pd.DataFrame):
+    def _create_date_features(
+            df: pd.DataFrame,
+    ):
 
         df["date"] = pd.to_datetime(df["date"])
 
-        df["month"] = pd.to_datetime(df.date).dt.month \
-            .astype(str) \
-            .astype("category")
-        df["day_of_week"] = pd.to_datetime(df.date).dt.dayofweek \
-            .astype(str) \
-            .astype("category")
-        df["hour"] = pd.to_datetime(df.date).dt.hour \
-            .astype(str) \
-            .astype("category")
-        df["day"] = pd.to_datetime(df.date).dt.day \
-            .astype(str) \
-            .astype("category")
-        df["weekofyear"] = pd.to_datetime(df.date).dt.isocalendar().week \
-            .astype(str) \
-            .astype("category")
+        df["month"] = df["date"].dt.month.astype(str)
+        df["day_of_week"] = df["date"].dt.dayofweek.astype(str)
+        df["hour"] = df["date"].dt.hour.astype(str)
+        df["day"] = df["date"].dt.day.astype(str)
+        df["weekofyear"] = df["date"].dt.isocalendar().week.astype(str)
+
+        return df
 
     @staticmethod
     def _create_moving_average(
