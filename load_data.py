@@ -173,6 +173,14 @@ class LoadData:
                 df = self._load_dataframe(folder=folder, file=file)
                 df = self._resample_df(df=df, sample=self.sample)
 
+                # FIXME: Check for future.
+                if len(df) < 1200:
+                    print(
+                        f"{file} time serie not considered "
+                        f"due to lack of observations ({len(df)})"
+                    )
+                    continue
+
                 train_split = int(len(df) * self.cutoff)
 
                 self._create_id_columns(

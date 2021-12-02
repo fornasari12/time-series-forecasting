@@ -2,7 +2,8 @@ general:
   data_path: "data"
   folder_list: [
       'realTweets',
-      'realTraffic'
+      'realTraffic',
+      'realKnownCause'
   ]
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"

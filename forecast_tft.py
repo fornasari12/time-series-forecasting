@@ -77,6 +77,10 @@ train_data, test_data = LoadData(
     lags=lags
 ).load_data()
 
+for column in train_data.columns:
+    if train_data[column].dtype == object:
+        train_data[column] = train_data[column].astype(str).astype("category")
+
 training = TimeSeriesDataSet(
     train_data,
     time_idx="time_idx",
@@ -124,6 +128,7 @@ for folder in FOLDER_LIST:
     ]
 
     for file in file_list:
+
         file = file.replace(".csv", "")
 
         df = test_data[
@@ -134,30 +139,51 @@ for folder in FOLDER_LIST:
         for start in range(0, 80, 1):
 
             test_data_df = df[start:(start + max_encoder_length)]
-            y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
+            # y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
+            y_obs = df[start: (start + max_encoder_length + max_prediction_length)]
 
-            y_hat = model.predict(
-                test_data_df,
-                mode="prediction",
-                return_x=True
-            )[0][0].tolist()
+            y_hat_index = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
+            y_hat_index = pd.to_datetime(y_hat_index.date)
+
+            try:
+                y_hat = model.predict(
+                    test_data_df,
+                    mode="prediction",
+                    return_x=True
+                )[0][0].tolist()
+            except Exception as e:
+                print(e)
+                pass
 
             fig, ax = plt.subplots()
 
-            ax.plot(
-                pd.Series(data=y_hat,
-                          index=pd.to_datetime(y_obs.date)),
-                label='forecast'
-            )
+            if len(y_hat_index) == len(y_hat):
 
-            ax.plot(
-                y_obs.set_index(pd.to_datetime(y_obs.date))["value"],
-                color='orange',
-                alpha=0.8,
-                label='observed',
-                linestyle='--',
-                linewidth=1.2
-            )
+                ax.plot(
+                    pd.Series(data=y_hat,
+                              index=y_hat_index),
+                    label='forecast'
+                )
+
+                ax.plot(
+                    y_obs.set_index(pd.to_datetime(y_obs.date))["value"],
+                    color='orange',
+                    alpha=0.8,
+                    label='observed',
+                    linestyle='--',
+                    linewidth=1.2
+                )
+
+            else:
+
+                ax.plot(
+                    pd.Series(
+                        data=y_hat,
+                        index=range(0, len(y_hat)),
+
+                    ),
+                label='forecast'
+                )
 
             plt.title(f'{file}')
             plt.legend()
