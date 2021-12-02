@@ -120,75 +120,67 @@ model = TemporalFusionTransformer.from_dataset(
 
 model.load_state_dict(torch.load(MODEL_PATH))
 
-for folder in FOLDER_LIST:
+for file in train_data.id.unique().tolist():
 
-    folder_path = f"{DATA_PATH}/{folder}"
-    file_list = [
-        f for f in listdir(folder_path) if isfile(join(folder_path, f))
-    ]
+    file = file.replace(".csv", "")
 
-    for file in file_list:
+    df = test_data[
+        (test_data["id"] == file)
+    ].reset_index(drop=True)
 
-        file = file.replace(".csv", "")
+    for start in range(0, 80, 1):
 
-        df = test_data[
-            (test_data["dataset"] == folder) &
-            (test_data["id"] == file)
-        ].reset_index(drop=True)
+        test_data_df = df[start:(start + max_encoder_length)]
+        # y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
+        y_obs = df[start: (start + max_encoder_length + max_prediction_length)]
 
-        for start in range(0, 80, 1):
+        y_hat_index = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
+        y_hat_index = pd.to_datetime(y_hat_index.date)
 
-            test_data_df = df[start:(start + max_encoder_length)]
-            # y_obs = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
-            y_obs = df[start: (start + max_encoder_length + max_prediction_length)]
+        try:
+            y_hat = model.predict(
+                test_data_df,
+                mode="prediction",
+                return_x=True
+            )[0][0].tolist()
+        except Exception as e:
+            print(e)
+            pass
 
-            y_hat_index = df[(start + max_encoder_length): (start + max_encoder_length + max_prediction_length)]
-            y_hat_index = pd.to_datetime(y_hat_index.date)
+        fig, ax = plt.subplots()
 
-            try:
-                y_hat = model.predict(
-                    test_data_df,
-                    mode="prediction",
-                    return_x=True
-                )[0][0].tolist()
-            except Exception as e:
-                print(e)
-                pass
+        if len(y_hat_index) == len(y_hat):
 
-            fig, ax = plt.subplots()
-
-            if len(y_hat_index) == len(y_hat):
-
-                ax.plot(
-                    pd.Series(data=y_hat,
-                              index=y_hat_index),
-                    label='forecast'
-                )
-
-                ax.plot(
-                    y_obs.set_index(pd.to_datetime(y_obs.date))["value"],
-                    color='orange',
-                    alpha=0.8,
-                    label='observed',
-                    linestyle='--',
-                    linewidth=1.2
-                )
-
-            else:
-
-                ax.plot(
-                    pd.Series(
-                        data=y_hat,
-                        index=range(0, len(y_hat)),
-
-                    ),
+            ax.plot(
+                pd.Series(data=y_hat,
+                          index=y_hat_index),
                 label='forecast'
-                )
+            )
 
-            plt.title(f'{file}')
-            plt.legend()
-            # plt.pause(0.05)
+            ax.plot(
+                y_obs.set_index(pd.to_datetime(y_obs.date))["value"],
+                color='orange',
+                alpha=0.8,
+                label='observed',
+                linestyle='--',
+                linewidth=1.2
+            )
 
-            plt.show(block=False)
-            plt.pause(0.00005)
-            plt.close()
+        else:
+
+            ax.plot(
+                pd.Series(
+                    data=y_hat,
+                    index=range(0, len(y_hat)),
+
+                ),
+            label='forecast'
+            )
+
+        plt.title(f'{file}')
+        plt.legend()
+        # plt.pause(0.05)
+
+        plt.show(block=False)
+        plt.pause(0.00000005)
+        plt.close()

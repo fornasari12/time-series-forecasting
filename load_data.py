@@ -176,8 +176,7 @@ class LoadData:
                 # FIXME: Check for future.
                 if len(df) < 1200:
                     print(
-                        f"{file} time serie not considered "
-                        f"due to lack of observations ({len(df)})"
+                        f"{folder} - {file}: Not enough obs. ({len(df)})"
                     )
                     continue
 

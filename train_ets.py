@@ -45,7 +45,7 @@ for data_name in train_data.id.unique().tolist():
     fit = ExponentialSmoothing(
         sp=96,
         trend="add",
-        seasonal="mul",
+        seasonal="add",
         use_boxcox=True,
         initialization_method="estimated",
     ).fit(train_data_id)
@@ -54,7 +54,7 @@ for data_name in train_data.id.unique().tolist():
         pickle.dump(fit, f)
 
     if PLOT:
-        ax = train_data_id.plot(
+        ax = train_data_id[-48:].plot(
             figsize=(10, 6),
             marker="o",
             color="black",
