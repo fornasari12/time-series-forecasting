@@ -6,7 +6,7 @@ general:
       'realKnownCause',
       'realAdExchange',
       'realAWSCloudwatch',
-#      'M4Hourly'
+      'M4Hourly'
   ]
   scaler_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/scaler.pickle"
   model_path_nbeats: "/Volumes/GoogleDrive/My Drive/Colab_Notebooks/model/n_beats/n_beats.pickle"
@@ -23,7 +23,7 @@ model:
   ]
   time_varying_known_reals: [ "time_idx" ]
   batch_size: 512
-  max_epochs: 600
+  max_epochs: 1000
   gpus: 1
   learning_rate: 0.005
   hidden_size: 100
@@ -31,7 +31,7 @@ model:
   hidden_continuous_size: 50
   gradient_clip_val: 0.8397065210970555
   attention_head_size: 4
-  lstm_layers: 3
+  lstm_layers: 4
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"
