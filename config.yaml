@@ -50,16 +50,16 @@ model_local:
       "weekofyear"
   ]
   time_varying_known_reals: [ "time_idx" ]
-  batch_size: 2048
-  max_epochs: 4
+  batch_size: 1024
+  max_epochs: 2
   gpus: 0
-  learning_rate: 0.01
-  hidden_size: 8
-  dropout: 0.2
-  hidden_continuous_size: 4
-  gradient_clip_val: 0.3
-  attention_head_size: 2
-  lstm_layers: 2
+  learning_rate: 0.1
+  hidden_size: 1
+  dropout: 0.11
+  hidden_continuous_size: 1
+  gradient_clip_val: 0.1
+  attention_head_size: 1
+  lstm_layers: 1
   max_prediction_length: 24
   max_encoder_length: 48
   sample: "60min"
@@ -70,13 +70,13 @@ model_local:
 nbeats:
     input_chunk_length: 48
     output_chunk_length: 24
-    num_stacks: 10
+    num_stacks: 2
     num_blocks: 1
-    num_layers: 15
-    layer_widths: 512
-    n_epochs: 500
+    num_layers: 2
+    layer_widths: 128
+    n_epochs: 100
     nr_epochs_val_period: 1
-    batch_size: 512
+    batch_size: 2048
     model_name: 'nbeats_run'
     sample: "60min"
     cutoff: 0.70

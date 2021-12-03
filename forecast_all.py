@@ -59,7 +59,10 @@ train_data, test_data = LoadData(
     sma=sma,
     lags=lags,
     time_idx=True,
-).load_data()
+).load_data(
+    min_obs=700,
+    reduce_memory=["cat", "float", "int"]
+)
 
 # _________________________________________________________________________________________________________________
 # Load Temporal Fusion Transformer Model:
@@ -165,8 +168,8 @@ for data_name in train_data.id.unique().tolist():
                           label="exponential_smoothing")
             y_hat_tft.plot(ax=ax, style="--", marker="o", color="blue",
                            label="temporal_fusion_transformer")
-            y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
-                           label="N=BEATS")
+            # y_hat_nbeats.plot(ax=ax, style="--", marker="o", color="green",
+            #                label="N=BEATS")
 
             df_errors = pd.concat([y_obs, y_hat_tft, y_hat_es, y_hat_nbeats], axis=1).reset_index(drop=True)
             df_errors.columns = ["observed", "tft", "ets", "nbeats"]
@@ -178,7 +181,6 @@ for data_name in train_data.id.unique().tolist():
         except Exception as e:
             print(f"problem at data_name:{data_name} & step: {start}")
             continue
-
 
         plt.title(f"Forecasts for {data_name}")
         # plt.pause(0.05)

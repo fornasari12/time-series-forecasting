@@ -13,6 +13,7 @@ import torch
 from pytorch_forecasting import TemporalFusionTransformer, TimeSeriesDataSet
 from pytorch_forecasting.data import GroupNormalizer
 from pytorch_forecasting.metrics import QuantileLoss
+from sklearn.preprocessing import StandardScaler
 
 warnings.filterwarnings("ignore")
 
@@ -80,16 +81,12 @@ train_data, test_data = LoadData(
     reduce_memory=["cat", "float", "int"]
 )
 
-for column in train_data.columns:
-    if train_data[column].dtype == object:
-        train_data[column] = train_data[column].astype(str).astype("category")
-
 training = TimeSeriesDataSet(
     train_data,
     time_idx="time_idx",
     target="value",
     group_ids=["id"],
-    min_encoder_length=max_encoder_length // 2,
+    min_encoder_length=0,
     max_encoder_length=max_encoder_length,
     min_prediction_length=1,
     max_prediction_length=max_prediction_length,
@@ -98,12 +95,16 @@ training = TimeSeriesDataSet(
     time_varying_known_categoricals=time_varying_known_categoricals,
     time_varying_unknown_categoricals=[],
     time_varying_unknown_reals=["value"],
+    # target_normalizer=GroupNormalizer(
+    #     groups=["id"], transformation="softplus"
+    # ),
     target_normalizer=GroupNormalizer(
-        groups=["id"], transformation="softplus"
+        groups=["id"], transformation="log"
     ),
-    add_relative_time_idx=True,
-    add_target_scales=True,
-    add_encoder_length=True,
+    scalers={"StandardScaler": StandardScaler()},
+    add_relative_time_idx=False,
+    add_target_scales=False,
+    add_encoder_length=False,
 
 )
 

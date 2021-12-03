@@ -9,7 +9,7 @@ from load_data import LoadData
 # https://www.sktime.org/en/latest/api_reference/auto_generated/sktime.forecasting.exp_smoothing.ExponentialSmoothing.html#sktime.forecasting.exp_smoothing.ExponentialSmoothing.update
 
 
-PLOT = True
+PLOT = False
 spec = load_config("config.yaml")
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]

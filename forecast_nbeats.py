@@ -1,6 +1,7 @@
 import pickle
 import argparse
 import pandas as pd
+import numpy as np
 
 from darts import TimeSeries
 
@@ -49,7 +50,10 @@ train_data, test_data = LoadData(
     # sma=sma,
     # lags=None,
     # time_idx=True,
-).load_data()
+).load_data(
+    min_obs=700,
+    reduce_memory=""
+)
 
 # _________________________________________________________________________________________________________________
 # Load N-BEATS Model & Scaler_dict:
@@ -68,6 +72,8 @@ for data_name in train_data.id.unique().tolist():
     test_data_nbeats = test_data[
         (test_data["id"] == data_name)
         ][["date", "value"]].reset_index(drop=True)
+
+    test_data_nbeats.value = test_data_nbeats.value.astype(np.float32)
 
     scaler = scaler_dict[data_name]
 

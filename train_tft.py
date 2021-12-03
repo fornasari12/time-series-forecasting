@@ -86,13 +86,13 @@ if __name__ == "__main__":
         min_obs=700,
         reduce_memory=["cat", "float", "int"]
     )
-
+    from sklearn.preprocessing import StandardScaler
     training = TimeSeriesDataSet(
         train_data,
         time_idx="time_idx",
         target="value",
         group_ids=["id"],
-        min_encoder_length=max_encoder_length // 2,
+        min_encoder_length=0,
         max_encoder_length=max_encoder_length,
         min_prediction_length=1,
         max_prediction_length=max_prediction_length,
@@ -101,12 +101,16 @@ if __name__ == "__main__":
         time_varying_known_categoricals=time_varying_known_categoricals,
         time_varying_unknown_categoricals=[],
         time_varying_unknown_reals=["value"],
+        # target_normalizer=GroupNormalizer(
+        #     groups=["id"], transformation="softplus"
+        # ),
         target_normalizer=GroupNormalizer(
-            groups=["id"], transformation="softplus"
+            groups=["id"], transformation="log"
         ),
-        add_relative_time_idx=True,
-        add_target_scales=True,
-        add_encoder_length=True,
+        scalers={"StandardScaler": StandardScaler()},
+        add_relative_time_idx=False,
+        add_target_scales=False,
+        add_encoder_length=False,
 
     )
 
