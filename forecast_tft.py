@@ -75,7 +75,10 @@ train_data, test_data = LoadData(
     sample=sample,
     sma=sma,
     lags=lags
-).load_data()
+).load_data(
+    min_obs=700,
+    reduce_memory=["cat", "float", "int"]
+)
 
 for column in train_data.columns:
     if train_data[column].dtype == object:

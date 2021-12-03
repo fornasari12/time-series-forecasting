@@ -26,7 +26,10 @@ train_data, test_data = LoadData(
     sma=None,
     lags=None,
     time_idx=False,
-).load_data()
+).load_data(
+    min_obs=700,
+    reduce_memory=["cat", "float", "int"]
+)
 
 for data_name in train_data.id.unique().tolist():
 

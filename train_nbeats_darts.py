@@ -48,7 +48,9 @@ series_dict = LoadData(
     folder_list=FOLDER_LIST,
     cutoff=cutoff,
     sample=sample,
-).load_data_darts(scaler_path=SCALER_PATH)
+).load_data_darts(
+    scaler_path=SCALER_PATH,
+)
 
 model_nbeats = NBEATSModel(
     input_chunk_length=INPUT_CHUNK_LENGTH,

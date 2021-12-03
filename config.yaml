@@ -74,7 +74,7 @@ nbeats:
     num_blocks: 1
     num_layers: 15
     layer_widths: 512
-    n_epochs: 4000
+    n_epochs: 500
     nr_epochs_val_period: 1
     batch_size: 512
     model_name: 'nbeats_run'
