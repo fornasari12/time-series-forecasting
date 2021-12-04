@@ -25,6 +25,7 @@ model:
   batch_size: 512
   max_epochs: 1000
   gpus: 1
+  strategy: "ddp"
   learning_rate: 0.005
   hidden_size: 100
   dropout: 0.21387145479502692
