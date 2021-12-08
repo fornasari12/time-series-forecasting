@@ -1,22 +1,21 @@
 import os
 import warnings
 
+import pandas as pd  # noqa: E402
+import matplotlib.pyplot as plt
+
+import torch
+from pytorch_forecasting.data import NaNLabelEncoder
+from pytorch_forecasting.data.examples import generate_ar_data
+import flash
+from flash.core.utilities.imports import example_requires
+from flash.tabular.forecasting import TabularForecaster, TabularForecastingData
+from flash.core.integrations.pytorch_forecasting import convert_predictions
+
 from config import load_config
 from load_data import LoadData
 
-import pandas as pd
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor
-from pytorch_lightning.loggers import TensorBoardLogger
-from pytorch_lightning.callbacks import EarlyStopping
-import torch
-
-from pytorch_forecasting import Baseline, NBeats, TimeSeriesDataSet
-from pytorch_forecasting.data import NaNLabelEncoder
-from pytorch_forecasting.data import GroupNormalizer
-from pytorch_forecasting.data.examples import generate_ar_data
-from pytorch_forecasting.metrics import SMAPE
-
+example_requires("tabular")
 warnings.filterwarnings("ignore")
 
 spec = load_config("config.yaml")
@@ -59,58 +58,76 @@ if __name__ == "__main__":
     # data["static"] = 2
     data["date"] = pd.Timestamp("2020-01-01") + pd.to_timedelta(data.time_idx, "D")
     data.series = data.series.astype(str).astype("category")
-    max_encoder_length = 70
-    max_prediction_length = 10
+
+    max_encoder_length = 12
+    max_prediction_length = 24
 
     cutoff = timesteps * 0.70
     train_data = data[data["time_idx"] <= cutoff]
     test_data = data[data["time_idx"] > cutoff]
 
-    training = TimeSeriesDataSet(
-        train_data,
+    training_cutoff = data["time_idx"].max() - max_prediction_length
+
+    datamodule = TabularForecastingData.from_data_frame(
         time_idx="time_idx",
         target="value",
-        # categorical_encoders={"series": NaNLabelEncoder().fit(train_data.series)},
+        categorical_encoders={"series": NaNLabelEncoder().fit(data.series)},
         group_ids=["series"],
+        # only unknown variable is "value" - and N-Beats can also not take any additional variables
         time_varying_unknown_reals=["value"],
         max_encoder_length=max_encoder_length,
         max_prediction_length=max_prediction_length,
-        allow_missing_timesteps=True,
-    )
-    # training_cutoff = train_data["time_idx"].max() - max_prediction_length
-    validation = TimeSeriesDataSet.from_dataset(training, train_data, predict=True, stop_randomization=True)
-    batch_size = 2048
-    train_dataloader = training.to_dataloader(train=True, batch_size=batch_size, num_workers=0)
-    val_dataloader = validation.to_dataloader(train=False, batch_size=batch_size * 10, num_workers=0)
-
-    # configure network and trainer
-    pl.seed_everything(42)
-
-    early_stop_callback = EarlyStopping(monitor="val_loss", min_delta=1e-4, patience=10, verbose=False, mode="min")
-    trainer = pl.Trainer(
-        max_epochs=3,
-        gpus=0,
-        weights_summary="top",
-        gradient_clip_val=0.01,
-        callbacks=[early_stop_callback],
-        # limit_train_batches=30,
+        train_data_frame=train_data[lambda x: x.time_idx <= training_cutoff],
+        val_data_frame=train_data,
+        batch_size=1024,
     )
 
-    net = NBeats.from_dataset(
-        training,
-        learning_rate=0.01,
-        log_interval=10,
-        log_val_interval=1,
-        weight_decay=1e-2,
-        widths=[32, 512],
-        backcast_loss_ratio=1.0,
+    # 2. Build the task
+    model = TabularForecaster(
+        datamodule.parameters,
+        backbone="n_beats",
+        backbone_kwargs={"widths": [32, 512], "backcast_loss_ratio": 0.1},
     )
 
-    trainer.fit(
-        net,
-        train_dataloader=train_dataloader,
-        val_dataloaders=val_dataloader,
-    )
+    # 3. Create the trainer and train the model
+    trainer = flash.Trainer(max_epochs=1, gpus=torch.cuda.device_count(), gradient_clip_val=0.01)
+    trainer.fit(model, datamodule=datamodule)
+
+    test_df = test_data[:12]
+    # start_time_idx = test_df.time_idx.max() + 1
+    #
+    # start_date = test_df.date.max() + pd.Timedelta(days=1)
+    # date_range = pd.date_range(start_date, periods=max_prediction_length, freq="D")
+    # import numpy as np
+    # test = pd.DataFrame(
+    #     {
+    #         "series": [0 for i in range(max_prediction_length)],
+    #         "time_idx": [i for i in range(start_time_idx, start_time_idx + max_prediction_length)],
+    #         "value": [1.52345 for i in range(max_prediction_length)],
+    #         "date": date_range
+    #     })
+
+    # test.series = test.series.astype("category")
+    # test.value = test.value.astype(float)
+
+    # test = pd.concat([test_df, test]).reset_index(drop=True)
+    #
+    # test.series = test.series.astype("category")
+    # test.value = test.value.astype(float)
+
+    # 4. Generate predictions
+    # predictions = model.predict(test_df)
+    predictions = model.forward(test_df)
+    predictions, inputs = convert_predictions(predictions)
+    model.pytorch_forecasting_model.plot_interpretation(inputs, predictions, idx=0)
+    plt.show()
+    print(predictions)
+
+    # 5. Save the model!
+    trainer.save_checkpoint("model/tabular.pt")
+
+
+
 
     # import pickle
     # with open(f"model/n_beats/training.pickle", "wb") as f:
@@ -132,27 +149,27 @@ if __name__ == "__main__":
 
     # test_data.series = test_data.series.astype(str).astype("category")
 
-    test_slice = test_data[test_data["series"] == '0'][:max_encoder_length]
-
-    testing = TimeSeriesDataSet(
-        test_slice,
-        time_idx="time_idx",
-        target="value",
-        # categorical_encoders={"series": NaNLabelEncoder().fit(data.series)},
-        group_ids=["series"],
-        # only unknown variable is "value" - and N-Beats can also not take any additional variables
-        time_varying_unknown_reals=["value"],
-        max_encoder_length=max_encoder_length,
-        max_prediction_length=max_prediction_length,
-    )
-    test = TimeSeriesDataSet.from_dataset(testing, test_slice)
-    test_dataloader = test.to_dataloader(train=False, batch_size=batch_size, num_workers=0)
-
-    y_hat_tft = net.predict(
-            test_data[test_data["series"] == '0'][:max_encoder_length],
-            mode="prediction",
-            return_x=True)
-
-    print("a")
-
+    # test_slice = test_data[test_data["series"] == '0'][:max_encoder_length]
+    #
+    # testing = TimeSeriesDataSet(
+    #     test_slice,
+    #     time_idx="time_idx",
+    #     target="value",
+    #     # categorical_encoders={"series": NaNLabelEncoder().fit(data.series)},
+    #     group_ids=["series"],
+    #     # only unknown variable is "value" - and N-Beats can also not take any additional variables
+    #     time_varying_unknown_reals=["value"],
+    #     max_encoder_length=max_encoder_length,
+    #     max_prediction_length=max_prediction_length,
+    # )
+    # test = TimeSeriesDataSet.from_dataset(testing, test_slice)
+    # test_dataloader = test.to_dataloader(train=False, batch_size=batch_size, num_workers=0)
+    #
+    # y_hat_tft = net.predict(
+    #         test_data[test_data["series"] == '0'][:max_encoder_length],
+    #         mode="prediction",
+    #         return_x=True)
+    #
+    # print("a")
+    #
 

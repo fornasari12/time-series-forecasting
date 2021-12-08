@@ -38,8 +38,8 @@ else:
         import tensorflow as tf
         import tensorboard as tb
         tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
-        spec = load_config("/content/temporal-fusion-transformer/config.yaml")
-        DATA_PATH = "/content/temporal-fusion-transformer/" + spec["general"]["data_path"]
+        spec = load_config("/content/time-series-forecasting/config.yaml")
+        DATA_PATH = "/content/time-series-forecasting/" + spec["general"]["data_path"]
     except Exception as e:
         print("Running on cloud", e)
         spec = load_config("config.yaml")
@@ -51,7 +51,7 @@ MODEL_PATH = spec[model_key]["model_path"]
 BATCH_SIZE = spec[model_key]["batch_size"]
 MAX_EPOCHS = spec[model_key]["max_epochs"]
 GPUS = spec[model_key]["gpus"]
-STRATEGY = spec[model_key]["strategy"] if GPUS is not 0 else None
+STRATEGY = spec[model_key]["strategy"] if GPUS != 0 else None
 LEARNING_RATE = spec[model_key]["learning_rate"]
 HIDDEN_SIZE = spec[model_key]["hidden_size"]
 DROPOUT = spec[model_key]["dropout"]

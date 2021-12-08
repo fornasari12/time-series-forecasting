@@ -24,8 +24,8 @@ if LOCAL:
     DATA_PATH = spec["general"]["data_path"]
 else:
     model_key = "nbeats"
-    spec = load_config("/content/temporal-fusion-transformer/config.yaml")
-    DATA_PATH = "/content/temporal-fusion-transformer/" + spec["general"]["data_path"]
+    spec = load_config("/content/time-series-forecasting/config.yaml")
+    DATA_PATH = "/content/time-series-forecasting/" + spec["general"]["data_path"]
 
 FOLDER_LIST = spec["general"]["folder_list"]
 MODEL_PATH = spec[model_key]["model_path"]

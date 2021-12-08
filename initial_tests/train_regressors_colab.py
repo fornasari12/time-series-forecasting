@@ -18,7 +18,7 @@ tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 
 warnings.filterwarnings("ignore")  # avoid printing out absolute paths
 
-spec = load_config("/content/temporal-fusion-transformer/config.yaml")
+spec = load_config("/content/time-series-forecasting/config.yaml")
 BATCH_SIZE = spec["model"]["batch_size"]
 MAX_EPOCHS = spec["model"]["max_epochs"]
 GPUS = spec["model"]["gpus"]
@@ -28,7 +28,7 @@ DROPOUT = spec["model"]["dropout"]
 HIDDEN_CONTINUOUS_SIZE = spec["model"]["hidden_continuous_size"]
 GRADIENT_CLIP_VAL = spec["model"]["gradient_clip_val"]
 
-data = pd.read_csv("/content/temporal-fusion-transformer/data/poc.csv")
+data = pd.read_csv("/content/time-series-forecasting/data/poc.csv")
 data = data[[
     "MERCHANT_1_NUMBER_OF_TRX",
     "MERCHANT_2_NUMBER_OF_TRX",

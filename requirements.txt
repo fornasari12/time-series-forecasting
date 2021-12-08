@@ -1,12 +1,12 @@
 pytorch-forecasting==0.9.0
 pytorch-lightning==1.5.0
+lightning-flash[tabular]>=0.5.2
 torch==1.8.1
-"u8darts[torch]==0.12.0"
 statsmodels==0.12.1
 sktime==0.8.1
 scikit-learn==0.24.2
 pyarrow==3.0.0
 pandas==1.2.5
 numpy==1.20.3
-matplotlib=3.4.3
+matplotlib==3.4.3
 PyYAML==6.0

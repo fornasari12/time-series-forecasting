@@ -25,11 +25,11 @@ if LOCAL:
 else:
     model_key = "model"
 
-spec = load_config("/content/temporal-fusion-transformer/config.yaml")
+spec = load_config("/content/time-series-forecasting/config.yaml")
 
 MODEL_PATH_NBEATS = "/content/drive/MyDrive/Colab_Notebooks/model/n_beats/n_beats.pickle"
 SCALER_PATH_NBEATS = "/content/drive/MyDrive/Colab_Notebooks/model/n_beats/scaler.pickle"
-DATA_PATH = "/content/temporal-fusion-transformer/" + spec["general"]["data_path"]
+DATA_PATH = "/content/time-series-forecasting/" + spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
 
 lags = spec[model_key]["lags"]

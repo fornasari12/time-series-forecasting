@@ -18,7 +18,7 @@ tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 
 warnings.filterwarnings("ignore")
 
-spec = load_config("/content/temporal-fusion-transformer/inflation_forecasting/config.yaml")
+spec = load_config("/content/time-series-forecasting/inflation_forecasting/config.yaml")
 DATA_PATH = spec["general"]["data_path_colab"]
 CSV_NAME = spec["general"]["csv_name"]
 CSV_LIST = spec["general"]["csv_list"]

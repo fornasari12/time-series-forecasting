@@ -37,8 +37,8 @@ else:
     import tensorflow as tf
     import tensorboard as tb
     tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
-    spec = load_config("/content/temporal-fusion-transformer/config.yaml")
-    DATA_PATH = "/content/temporal-fusion-transformer/" + spec["general"]["data_path"]
+    spec = load_config("/content/time-series-forecasting/config.yaml")
+    DATA_PATH = "/content/time-series-forecasting/" + spec["general"]["data_path"]
     HYPERPARMETERS_PATH = spec[model_key]["hyperparameters_path"]
 
 FOLDER_LIST = spec["general"]["folder_list"]

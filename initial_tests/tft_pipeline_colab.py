@@ -18,7 +18,7 @@ tf.io.gfile = tb.compat.tensorflow_stub.io.gfile
 
 warnings.filterwarnings("ignore")
 
-spec = load_config("/content/temporal-fusion-transformer/config.yaml")
+spec = load_config("/content/time-series-forecasting/config.yaml")
 DATA_PATH = spec["general"]["data_path"]
 FOLDER_LIST = spec["general"]["folder_list"]
 MODEL_PATH = spec["model"]["model_path"]
@@ -61,7 +61,7 @@ cutoff = spec["model"]["cutoff"]
 if __name__ == "__main__":
 
     train_data, _ = LoadData(
-        data_path="/content/temporal-fusion-transformer/" + DATA_PATH,
+        data_path="/content/time-series-forecasting/" + DATA_PATH,
         folder_list=FOLDER_LIST,
         cutoff=cutoff,
         sample=sample,
